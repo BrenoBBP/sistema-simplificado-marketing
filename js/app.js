@@ -72,12 +72,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Close on Link Click
-        const links = navLinks.querySelectorAll('button');
+        const links = navLinks.querySelectorAll('button.nav-tab'); // Only nav-tabs, not the close button
         links.forEach(link => {
             link.addEventListener('click', () => {
                 if (window.innerWidth <= 900) toggleSidebar();
             });
         });
+
+        // Close Button Logic
+        const closeBtn = document.getElementById('menu-close-btn');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleSidebar();
+            });
+        }
     }
 
     // Setup drag and drop
