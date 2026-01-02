@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Demandas</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+    <div id="app">
+        <!-- Login Page -->
+        <div id="login-page" class="page">
+            <div class="login-container">
+                <div class="login-card">
+                    <h1>Sistema de Demandas</h1>
+                    <form id="login-form">
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" placeholder="seu@email.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Senha</label>
+                            <input type="password" id="password" placeholder="Sua senha" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full">Entrar</button>
+                        <p class="error-message" id="login-error"></p>
+                    </form>
+                    <p class="register-link">Não tem conta? <a href="#" id="show-register">Cadastre-se</a></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Register Page -->
+        <div id="register-page" class="page hidden">
+            <div class="login-container">
+                <div class="login-card">
+                    <h1>Criar Conta</h1>
+                    <form id="register-form">
+                        <div class="form-group">
+                            <label for="reg-nome">Nome Completo</label>
+                            <input type="text" id="reg-nome" placeholder="Seu nome" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="reg-email">Email</label>
+                            <input type="email" id="reg-email" placeholder="seu@email.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="reg-password">Senha</label>
+                            <input type="password" id="reg-password" placeholder="Mínimo 6 caracteres" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full">Cadastrar</button>
+                        <p class="error-message" id="register-error"></p>
+                    </form>
+                    <p class="register-link">Já tem conta? <a href="#" id="show-login">Faça login</a></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Page -->
+        <div id="dashboard-page" class="page hidden">
+            <header class="header">
+                <div class="header-left">
+                    <h1 class="logo">MSA Demandas</h1>
+                </div>
+                <div class="header-center">
+                    <button class="btn btn-success" id="btn-nova-demanda">+ Nova Demanda</button>
+                    <button class="btn btn-orange hidden" id="btn-por-usuario">Por Usuário</button>
+                    <button class="btn btn-cyan hidden" id="btn-usuarios">Usuários</button>
+                    <button class="btn btn-info hidden" id="btn-relatorios">Relatórios BI</button>
+                </div>
+                <div class="header-right">
+                    <span id="user-info">Olá, Usuário! (Perfil: colaborador)</span>
+                    <button class="btn btn-danger" id="btn-sair">Sair</button>
+                </div>
+            </header>
+
+            <!-- Kanban Board -->
+            <div class="kanban-container" id="kanban-container">
+                <div class="kanban-column" data-status="A_FAZER">
+                    <div class="column-header">
+                        <div class="column-tabs">
+                            <button class="column-tab active" data-subtab="a-fazer">A Fazer</button>
+                            <button class="column-tab" data-subtab="fixos">Fixos</button>
+                        </div>
+                        <span class="column-count">0</span>
+                    </div>
+                    <div class="column-cards" id="cards-A_FAZER">
+                        <p class="empty-message">Nenhuma demanda aqui.</p>
+                    </div>
+                    <div class="column-cards hidden" id="cards-FIXO">
+                        <p class="empty-message">Nenhuma demanda fixa.</p>
+                    </div>
+                </div>
+                <div class="kanban-column" data-status="EM_ANDAMENTO">
+                    <div class="column-header">
+                        <span class="column-title">Em Andamento</span>
+                        <span class="column-count">0</span>
+                    </div>
+                    <div class="column-cards" id="cards-EM_ANDAMENTO">
+                        <p class="empty-message">Nenhuma demanda aqui.</p>
+                    </div>
+                </div>
+                <div class="kanban-column" data-status="PARA_APROVACAO">
+                    <div class="column-header">
+                        <span class="column-title">Para Aprovação</span>
+                        <span class="column-count">0</span>
+                    </div>
+                    <div class="column-cards" id="cards-PARA_APROVACAO">
+                        <p class="empty-message">Nenhuma demanda aqui.</p>
+                    </div>
+                </div>
+                <div class="kanban-column" data-status="EM_REVISAO">
+                    <div class="column-header">
+                        <span class="column-title">Em Revisão</span>
+                        <span class="column-count">0</span>
+                    </div>
+                    <div class="column-cards" id="cards-EM_REVISAO">
+                        <p class="empty-message">Nenhuma demanda aqui.</p>
+                    </div>
+                </div>
+                <div class="kanban-column" data-status="APROVADO">
+                    <div class="column-header">
+                        <span class="column-title">Aprovado</span>
+                        <span class="column-count">0</span>
+                    </div>
+                    <div class="column-cards" id="cards-APROVADO">
+                        <p class="empty-message">Nenhuma demanda aqui.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tarefas por Usuário Section (Directors/Managers only) -->
+            <div class="tarefas-usuario-section hidden" id="tarefas-usuario-section">
+                <div class="section-header">
+                    <h2>Tarefas por Usuário</h2>
+                    <span class="section-subtitle">Visualização em tempo real das demandas em produção</span>
+                </div>
+                <div class="user-kanban-container" id="user-kanban-container">
+                    <!-- User columns will be dynamically inserted here -->
+                </div>
+            </div>
+
+            <!-- Gerenciar Funcionários Section -->
+            <div class="funcionarios-section hidden" id="funcionarios-section">
+                <div class="section-header">
+                    <h2>Gerenciar Funcionários</h2>
+                    <button class="btn btn-success" id="btn-novo-funcionario">+ Novo Funcionário</button>
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Email</th>
+                            <th>Cargo</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="funcionarios-tbody">
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- BI Dashboard Section -->
+            <div class="bi-dashboard-section hidden" id="bi-dashboard-section">
+                <div class="bi-header">
+                    <div class="bi-header-left">
+                        <h2>📊 Dashboard Gerencial</h2>
+                        <span class="bi-subtitle">Visão geral das demandas e produtividade</span>
+                    </div>
+                    <div class="bi-header-right">
+                        <select id="bi-filter-usuario" class="bi-select">
+                            <option value="">Visão Geral da Equipe</option>
+                        </select>
+                        <button class="btn btn-primary" id="btn-voltar-kanban">Voltar ao Kanban</button>
+                    </div>
+                </div>
+
+                <!-- KPI Cards -->
+                <div class="bi-kpi-row">
+                    <div class="bi-kpi-card kpi-blue">
+                        <div class="kpi-icon">📋</div>
+                        <div class="kpi-content">
+                            <span class="kpi-label">Demandas Abertas</span>
+                            <span class="kpi-value" id="kpi-abertas">0</span>
+                        </div>
+                    </div>
+                    <div class="bi-kpi-card kpi-green">
+                        <div class="kpi-icon">✅</div>
+                        <div class="kpi-content">
+                            <span class="kpi-label">Concluídas (30 dias)</span>
+                            <span class="kpi-value" id="kpi-concluidas">0</span>
+                        </div>
+                    </div>
+                    <div class="bi-kpi-card kpi-orange">
+                        <div class="kpi-icon">⏰</div>
+                        <div class="kpi-content">
+                            <span class="kpi-label">Em Andamento</span>
+                            <span class="kpi-value" id="kpi-andamento">0</span>
+                        </div>
+                    </div>
+                    <div class="bi-kpi-card kpi-red">
+                        <div class="kpi-icon">⚠️</div>
+                        <div class="kpi-content">
+                            <span class="kpi-label">Atrasadas</span>
+                            <span class="kpi-value" id="kpi-atrasadas">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="bi-charts-row">
+                    <div class="bi-chart-card">
+                        <h3>Distribuição por Status</h3>
+                        <div class="chart-container" id="chart-status">
+                            <canvas id="status-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bi-chart-card">
+                        <h3>Performance por Usuário</h3>
+                        <div class="chart-container" id="chart-usuarios">
+                            <canvas id="usuarios-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table Section -->
+                <div class="bi-table-card">
+                    <h3>Detalhamento por Responsável</h3>
+                    <table class="bi-table">
+                        <thead>
+                            <tr>
+                                <th>Responsável</th>
+                                <th>A Fazer</th>
+                                <th>Em Andamento</th>
+                                <th>Para Aprovação</th>
+                                <th>Concluídas</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bi-table-tbody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Nova Demanda -->
+    <div class="modal hidden" id="modal-nova-demanda">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Criar Nova Tarefa</h2>
+                <button class="modal-close" id="close-modal-demanda">&times;</button>
+            </div>
+            <form id="form-nova-demanda">
+                <div class="form-group">
+                    <label for="titulo">Título da Tarefa</label>
+                    <input type="text" id="titulo" required>
+                </div>
+                <div class="form-group">
+                    <label for="descricao">Descrição (Opcional)</label>
+                    <textarea id="descricao" rows="4"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="atribuir-para">Atribuir para</label>
+                    <select id="atribuir-para" required>
+                        <option value="">Selecione um usuário...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="status-inicial">Status Inicial</label>
+                    <select id="status-inicial">
+                        <option value="A_FAZER">A Fazer</option>
+                        <option value="FIXO">Fixo</option>
+                        <option value="EM_ANDAMENTO">Em Andamento</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="data-previsao">Data e Hora de Previsão</label>
+                    <input type="datetime-local" id="data-previsao">
+                </div>
+                <div class="form-group">
+                    <label for="horas-estimadas">Horas Estimadas para a Tarefa (Padrão: 8h)</label>
+                    <input type="number" id="horas-estimadas" value="8" step="0.5" min="0.5">
+                </div>
+                <div class="form-group">
+                    <label for="arquivo">Anexar Arquivo (Opcional)</label>
+                    <input type="file" id="arquivo">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="btn-cancelar-demanda">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Criar Demanda</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Editar Cargo -->
+    <div class="modal hidden" id="modal-editar-cargo">
+        <div class="modal-content modal-sm">
+            <div class="modal-header">
+                <h2>Editar Cargo</h2>
+                <button class="modal-close" id="close-modal-cargo">&times;</button>
+            </div>
+            <form id="form-editar-cargo">
+                <input type="hidden" id="edit-user-id">
+                <div class="form-group">
+                    <label for="edit-nome">Nome</label>
+                    <input type="text" id="edit-nome" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="edit-cargo">Cargo</label>
+                    <select id="edit-cargo">
+                        <option value="COLABORADOR">Colaborador</option>
+                        <option value="COORDENADOR">Coordenador</option>
+                        <option value="GERENTE">Gerente</option>
+                        <option value="DIRETOR">Diretor</option>
+                        <option value="ADM">ADM</option>
+                        <option value="DESIGN">Design</option>
+                        <option value="AUDIOVISUAL">Audio Visual</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="btn-cancelar-cargo">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Novo Funcionário -->
+    <div class="modal hidden" id="modal-novo-funcionario">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Cadastrar Novo Usuário</h2>
+                <button class="modal-close" id="close-modal-novo-func">&times;</button>
+            </div>
+            <form id="form-novo-funcionario">
+                <div class="form-group">
+                    <label for="novo-func-nome">Nome</label>
+                    <input type="text" id="novo-func-nome" placeholder="Nome completo" required>
+                </div>
+                <div class="form-group">
+                    <label for="novo-func-email">E-mail</label>
+                    <input type="email" id="novo-func-email" placeholder="email@exemplo.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="novo-func-whatsapp">WhatsApp</label>
+                    <input type="tel" id="novo-func-whatsapp" placeholder="(XX) XXXXX-XXXX">
+                </div>
+                <div class="form-group">
+                    <label for="novo-func-senha">Senha</label>
+                    <input type="password" id="novo-func-senha" placeholder="Mínimo 6 caracteres" required
+                        minlength="6">
+                </div>
+                <div class="form-group">
+                    <label for="novo-func-cargo">Função (Role)</label>
+                    <select id="novo-func-cargo" required>
+                        <option value="">Selecione...</option>
+                        <option value="COLABORADOR">Colaborador</option>
+                        <option value="COORDENADOR">Coordenador</option>
+                        <option value="GERENTE">Gerente</option>
+                        <option value="DIRETOR">Diretor</option>
+                        <option value="ADM">ADM</option>
+                        <option value="DESIGN">Design</option>
+                        <option value="AUDIOVISUAL">Audio Visual</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="novo-func-departamento">Departamento</label>
+                    <select id="novo-func-departamento">
+                        <option value="">Nenhum</option>
+                        <option value="MARKETING">Marketing</option>
+                        <option value="DESIGN">Design</option>
+                        <option value="AUDIOVISUAL">Audiovisual</option>
+                        <option value="ADMINISTRATIVO">Administrativo</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="btn-cancelar-novo-func">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Cadastrar Usuário</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Ver Demanda -->
+    <div class="modal hidden" id="modal-ver-demanda">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="ver-titulo">Título da Demanda</h2>
+                <button class="modal-close" id="close-modal-ver">&times;</button>
+            </div>
+
+            <!-- Tabs Navigation -->
+            <div class="modal-tabs">
+                <button class="modal-tab active" data-tab="detalhes">Detalhes</button>
+                <button class="modal-tab" data-tab="anexos">Anexos</button>
+            </div>
+
+            <!-- Tab Content: Detalhes -->
+            <div class="modal-tab-content active" id="tab-detalhes">
+                <div class="modal-body">
+                    <p><strong>Descrição:</strong></p>
+                    <p id="ver-descricao">-</p>
+                    <div class="demanda-info-grid">
+                        <div><strong>Criado por:</strong> <span id="ver-criador">-</span></div>
+                        <div><strong>Atribuído para:</strong> <span id="ver-atribuido">-</span></div>
+                        <div><strong>Status:</strong> <span id="ver-status">-</span></div>
+                        <div><strong>Previsão:</strong> <span id="ver-previsao">-</span></div>
+                        <div><strong>Horas Estimadas:</strong> <span id="ver-horas">-</span></div>
+                        <div><strong>Criado em:</strong> <span id="ver-criado">-</span></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <select id="mudar-status">
+                        <option value="A_FAZER">A Fazer</option>
+                        <option value="FIXO">Fixo</option>
+                        <option value="EM_ANDAMENTO">Em Andamento</option>
+                        <option value="PARA_APROVACAO">Para Aprovação</option>
+                        <option value="EM_REVISAO">Em Revisão</option>
+                        <option value="APROVADO">Aprovado</option>
+                    </select>
+                    <button class="btn btn-primary" id="btn-salvar-status">Salvar Status</button>
+                </div>
+            </div>
+
+            <!-- Tab Content: Anexos -->
+            <div class="modal-tab-content" id="tab-anexos">
+                <div class="modal-body anexos-body">
+                    <div id="anexos-container">
+                        <p class="empty-message">Nenhum anexo nesta demanda.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="demand-actions">
+                <div class="actions-left">
+                    <button class="btn btn-excluir" id="btn-excluir-demanda">Excluir</button>
+                    <button class="btn btn-duplicar" id="btn-duplicar-demanda">Duplicar</button>
+                </div>
+                <div class="actions-right">
+                    <button class="btn btn-delegar" id="btn-delegar-demanda">Delegar</button>
+                    <button class="btn btn-editar" id="btn-editar-demanda">Editar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Delegar Demanda -->
+    <div class="modal hidden" id="modal-delegar">
+        <div class="modal-content modal-sm">
+            <div class="modal-header">
+                <h2>Delegar Demanda</h2>
+                <button class="modal-close" id="close-modal-delegar">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Selecione o usuário para receber esta demanda:</p>
+                <div class="form-group">
+                    <label for="delegar-usuario">Usuário de Destino</label>
+                    <select id="delegar-usuario">
+                        <option value="">Selecione um usuário...</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-actions" style="padding: 0 30px 30px;">
+                <button class="btn btn-secondary" id="btn-cancelar-delegar">Cancelar</button>
+                <button class="btn btn-success" id="btn-confirmar-delegar">Delegar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Editar Demanda -->
+    <div class="modal hidden" id="modal-editar-demanda">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Editar Demanda</h2>
+                <button class="modal-close" id="close-modal-editar-demanda">&times;</button>
+            </div>
+            <form id="form-editar-demanda">
+                <input type="hidden" id="editar-demanda-id">
+                <div class="form-group">
+                    <label for="editar-titulo">Título da Tarefa</label>
+                    <input type="text" id="editar-titulo" required>
+                </div>
+                <div class="form-group">
+                    <label for="editar-descricao">Descrição</label>
+                    <textarea id="editar-descricao" rows="4"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="editar-previsao">Data e Hora de Previsão</label>
+                    <input type="datetime-local" id="editar-previsao">
+                </div>
+                <div class="form-group">
+                    <label for="editar-horas">Horas Estimadas</label>
+                    <input type="number" id="editar-horas" value="8" step="0.5" min="0.5">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="btn-cancelar-editar-demanda">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Confirmar Iniciar Tarefa -->
+    <div class="modal hidden" id="modal-confirmar-inicio">
+        <div class="modal-content modal-sm">
+            <div class="modal-header">
+                <h2>Iniciar Tarefa</h2>
+                <button class="modal-close" id="close-modal-confirmar">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja iniciar esta tarefa?</p>
+                <p id="confirmar-tarefa-nome" style="font-weight: 600; color: var(--accent-blue); margin-top: 10px;">
+                </p>
+            </div>
+            <div class="form-actions" style="padding: 0 30px 30px;">
+                <button class="btn btn-secondary" id="btn-cancelar-inicio">Cancelar</button>
+                <button class="btn btn-success" id="btn-confirmar-inicio">Iniciar</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>Desenvolvido por Nexus Tecnologia | © 2025 Direitos Reservados para o GRUPO MSA.</p>
+    </footer>
+
+    <script src="js/config.js?v=8"></script>
+    <script src="js/auth.js?v=8"></script>
+    <script src="js/demandas.js?v=11"></script>
+    <script src="js/funcionarios.js?v=11"></script>
+    <script src="js/userTasks.js?v=7"></script>
+    <script src="js/bi-dashboard.js?v=2"></script>
+    <script src="js/app.js?v=9"></script>
+</body>
+
+</html>
