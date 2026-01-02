@@ -66,12 +66,21 @@
                 <div class="header-left">
                     <h1 class="logo">MSA Demandas</h1>
                 </div>
-                <div class="header-center">
-                    <button class="btn btn-success" id="btn-nova-demanda">+ Nova Demanda</button>
-                    <button class="btn btn-orange hidden" id="btn-por-usuario">Por Usuário</button>
-                    <button class="btn btn-cyan hidden" id="btn-usuarios">Usuários</button>
+                <!-- Mobile Menu Toggle -->
+                <button class="menu-toggle" id="mobile-menu-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+
+                <!-- Navigation Links (Collapsible on Mobile) -->
+                <div class="nav-links" id="nav-links">
+                    <button class="nav-tab active" id="tab-demandas">Nova Demanda</button>
+                    <button class="nav-tab" id="tab-kanban">Kanban</button>
+                    <button class="nav-tab" id="tab-usuarios">Usuários</button>
                     <button class="btn btn-info hidden" id="btn-relatorios">Relatórios BI</button>
                 </div>
+
                 <div class="header-right">
                     <!-- Theme Toggle -->
                     <button id="theme-toggle" class="nav-tab theme-toggle-btn" title="Alternar Tema">

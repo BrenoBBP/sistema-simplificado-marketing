@@ -1645,4 +1645,152 @@ body {
     .bi-select {
         width: 100%;
     }
+}/* ======================================
+   Mobile Optimization
+====================================== */
+
+/* Hamburger Menu Toggle (Hidden by default) */
+.menu-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 30px;
+    height: 21px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    z-index: 1001;
+    padding: 0;
+}
+
+.menu-toggle span {
+    display: block;
+    width: 100%;
+    height: 3px;
+    background: var(--accent);
+    border-radius: 3px;
+    transition: all 0.3s ease;
+}
+
+/* Mobile Header Styles */
+@media (max-width: 900px) {
+    .app-header {
+        padding: 15px 20px;
+        flex-wrap: wrap;
+        gap: 10px;
+        position: relative;
+    }
+
+    .logo {
+        font-size: 20px;
+    }
+
+    .header-right {
+        margin-left: auto;
+    }
+
+    /* Show Hamburger */
+    .menu-toggle {
+        display: flex;
+        order: -1;
+        /* Place before logo on left, or adjust as needed */
+        margin-right: 15px;
+    }
+
+    /* Collapsible Nav Links */
+    .nav-links {
+        display: none;
+        width: 100%;
+        flex-direction: column;
+        gap: 10px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border-color);
+        margin-top: 10px;
+        animation: slideDown 0.3s ease forwards;
+    }
+
+    .nav-links.active {
+        display: flex;
+    }
+
+    .nav-tab,
+    .btn {
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .nav-tab {
+        padding: 12px;
+    }
+
+    /* Header Right adjustments */
+    #user-info {
+        display: none;
+        /* Hide user info to save space on mobile */
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Kanban Mobile - 1.5 Columns View */
+@media (max-width: 768px) {
+
+    .kanban-container,
+    .user-kanban-container {
+        padding: 20px;
+        gap: 15px;
+        /* Enable Scroll Snap */
+        scroll-snap-type: x mandatory;
+        padding-right: 25vw;
+        /* Ensure space to see next column hint */
+    }
+
+    .kanban-column,
+    .user-kanban-column {
+        min-width: 85vw;
+        /* 85% width to show part of next column */
+        max-width: 85vw;
+        scroll-snap-align: center;
+        /* Snap to center or start */
+        flex: 0 0 auto;
+        /* Prevent flexing */
+    }
+
+    /* Adjust header in Kanban for mobile */
+    .kanban-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .column-counter {
+        align-self: flex-end;
+    }
+}
+
+/* Smaller Mobile Adjustments */
+@media (max-width: 480px) {
+
+    .kanban-column,
+    .user-kanban-column {
+        min-width: 80vw;
+        /* Slightly smaller on very small screens */
+    }
+
+    .modal-content {
+        width: 95%;
+        margin: 10px;
+        max-height: 90vh;
+    }
 }
