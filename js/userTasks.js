@@ -34,6 +34,9 @@ function toggleUserTasksView() {
         kanbanContainer.classList.add('hidden');
         filtersSection?.classList.add('hidden');
         funcionariosSection?.classList.add('hidden');
+        // Hide BI Dashboard if active
+        document.getElementById('bi-dashboard-section')?.classList.add('hidden');
+        if (typeof biDashboardActive !== 'undefined') biDashboardActive = false;
         isUserTasksViewActive = true;
         loadUserTasksView();
         subscribeToUserTasks();
@@ -211,6 +214,9 @@ function toggleUsuariosView() {
         kanbanContainer.classList.add('hidden');
         tarefasUsuarioSection?.classList.add('hidden');
         filtersSection?.classList.add('hidden');
+        // Hide BI Dashboard if active
+        document.getElementById('bi-dashboard-section')?.classList.add('hidden');
+        if (typeof biDashboardActive !== 'undefined') biDashboardActive = false;
         isUsuariosViewActive = true;
 
         // Close user tasks view if open

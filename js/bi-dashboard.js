@@ -291,6 +291,22 @@ function showBIDashboard() {
     document.getElementById('tarefas-usuario-section')?.classList.add('hidden');
     document.getElementById('funcionarios-section')?.classList.add('hidden');
 
+    // Reset other view states
+    if (typeof isUserTasksViewActive !== 'undefined') isUserTasksViewActive = false;
+    if (typeof isUsuariosViewActive !== 'undefined') isUsuariosViewActive = false;
+
+    // Reset button texts
+    const btnPorUsuario = document.getElementById('btn-por-usuario');
+    if (btnPorUsuario) {
+        btnPorUsuario.textContent = 'Por Usuário';
+        btnPorUsuario.classList.remove('btn-purple');
+        btnPorUsuario.classList.add('btn-orange');
+    }
+    const btnUsuarios = document.getElementById('btn-usuarios');
+    if (btnUsuarios) {
+        btnUsuarios.textContent = 'Usuários';
+    }
+
     // Show BI section
     document.getElementById('bi-dashboard-section').classList.remove('hidden');
 
