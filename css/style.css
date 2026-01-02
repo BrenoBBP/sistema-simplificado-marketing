@@ -83,11 +83,18 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 8px;
+    position: relative;
+    overflow: hidden;
 }
 
 .btn:hover {
     transform: translateY(-2px);
-    box-shadow: var(--shadow);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 .btn:focus {
@@ -95,77 +102,64 @@ body {
     box-shadow: 0 0 0 3px var(--accent-glow);
 }
 
-.btn-primary {
-    background: var(--accent);
+.btn-primary,
+.btn-success,
+.btn-warning,
+.btn-info,
+.btn-orange,
+.btn-purple,
+.btn-cyan,
+.btn-duplicar,
+.btn-editar {
+    background: var(--grad-orange);
     color: white;
+    box-shadow: 0 4px 15px rgba(230, 126, 34, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.btn-primary:hover {
-    background: var(--accent-hover);
+.btn-primary:hover,
+.btn-success:hover,
+.btn-warning:hover,
+.btn-info:hover,
+.btn-orange:hover,
+.btn-purple:hover,
+.btn-cyan:hover,
+.btn-duplicar:hover,
+.btn-editar:hover {
+    box-shadow: 0 6px 20px rgba(230, 126, 34, 0.5);
+    filter: brightness(1.1);
 }
 
-.btn-success {
-    background: var(--accent);
-    color: white;
-}
-
-.btn-success:hover {
-    background: var(--accent-hover);
-}
-
-.btn-warning {
-    background: var(--accent);
-    color: white;
-}
-
-.btn-info {
-    background: var(--accent);
-    color: white;
-}
-
-.btn-info:hover {
-    background: var(--accent-hover);
-}
-
-.btn-danger {
-    background: var(--bg-tertiary);
+.btn-danger,
+.btn-excluir {
+    background: linear-gradient(135deg, var(--bg-tertiary), #2c0b0b);
     color: var(--accent-red);
     border: 1px solid var(--accent-red);
+    box-shadow: var(--shadow-sm);
 }
 
-.btn-danger:hover {
+.btn-danger:hover,
+.btn-excluir:hover {
     background: var(--accent-red);
     color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(192, 57, 43, 0.4);
 }
 
-.btn-orange {
-    background: var(--accent);
-    color: white;
-}
-
-.btn-orange:hover {
-    background: var(--accent-hover);
-}
-
-.btn-purple {
-    background: var(--accent);
-    color: white;
-}
-
-.btn-cyan {
-    background: var(--accent);
-    color: white;
-}
-
-.btn-secondary {
+.btn-secondary,
+.btn-delegar {
     background: var(--bg-tertiary);
     color: var(--text-primary);
-    border: 1px solid var(--accent);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
 }
 
-.btn-secondary:hover {
-    background: var(--accent);
-    color: white;
+.btn-secondary:hover,
+.btn-delegar:hover {
+    background: var(--bg-secondary);
+    border-color: var(--accent);
+    color: var(--accent);
+    box-shadow: var(--glow-accent);
 }
 
 .btn-full {
@@ -224,6 +218,7 @@ body {
     color: var(--text-primary);
     font-size: 14px;
     transition: var(--transition);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .form-group input:focus,
@@ -231,7 +226,8 @@ body {
 .form-group textarea:focus {
     outline: none;
     border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-glow);
+    background: var(--bg-secondary);
+    box-shadow: 0 0 0 3px var(--accent-glow), inset 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .form-group textarea {
@@ -381,10 +377,29 @@ body {
     flex: 1;
     min-width: 280px;
     max-width: 350px;
-    background: var(--bg-secondary);
-    border-radius: var(--radius);
-    padding: 20px;
-    border: 1px solid var(--border-color);
+    background: var(--grad-surface);
+    border-radius: 20px;
+    padding: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    box-shadow: var(--shadow-3d);
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.kanban-column:hover {
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+.kanban-column::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at top right, rgba(255, 255, 255, 0.03), transparent 60%);
+    pointer-events: none;
 }
 
 .column-header {
@@ -402,12 +417,13 @@ body {
 }
 
 .column-count {
-    background: var(--accent);
+    background: var(--grad-orange);
     padding: 4px 12px;
     border-radius: 20px;
     font-size: 12px;
     color: white;
     font-weight: 600;
+    box-shadow: 0 2px 8px rgba(230, 126, 34, 0.4);
 }
 
 .column-cards {
@@ -430,18 +446,32 @@ body {
    Demand Card
 ====================================== */
 .demand-card {
-    background: var(--bg-tertiary);
-    border-radius: var(--radius-sm);
-    padding: 15px;
+    background: var(--grad-card);
+    border-radius: var(--radius);
+    padding: 16px;
     cursor: pointer;
     transition: var(--transition);
-    border: 1px solid transparent;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    position: relative;
+    margin-bottom: 15px;
+}
+
+.demand-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
 }
 
 .demand-card:hover {
-    border-color: var(--accent);
-    transform: translateY(-3px);
-    box-shadow: var(--shadow);
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: var(--shadow-elevation), var(--glow-accent);
+    border-color: rgba(230, 126, 34, 0.4);
+    z-index: 10;
 }
 
 .demand-card-id {
@@ -595,10 +625,13 @@ body {
 
 .table {
     width: 100%;
-    border-collapse: collapse;
-    background: var(--bg-secondary);
-    border-radius: var(--radius);
+    border-collapse: separate;
+    border-spacing: 0;
+    background: var(--grad-surface);
+    border-radius: 20px;
     overflow: hidden;
+    box-shadow: var(--shadow-3d);
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .table th,
@@ -622,7 +655,7 @@ body {
 }
 
 .table tr:hover td {
-    background: var(--bg-tertiary);
+    background: rgba(255, 255, 255, 0.03);
 }
 
 .cargo-badge {
@@ -706,11 +739,25 @@ body {
 .user-kanban-column {
     min-width: 280px;
     max-width: 320px;
-    background: var(--bg-secondary);
-    border-radius: var(--radius);
-    border: 1px solid var(--border-color);
+    background: var(--grad-surface);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
     display: flex;
     flex-direction: column;
+    box-shadow: var(--shadow-3d);
+    position: relative;
+    overflow: hidden;
+}
+
+.user-kanban-column::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at top right, rgba(255, 255, 255, 0.03), transparent 60%);
+    pointer-events: none;
 }
 
 .user-column-header {
@@ -749,11 +796,19 @@ body {
 }
 
 .user-task-card {
-    background: var(--bg-tertiary);
-    border-radius: var(--radius-sm);
-    padding: 12px 15px;
+    background: var(--grad-card);
+    border-radius: 12px;
+    padding: 16px;
     border-left: 4px solid var(--accent);
     transition: var(--transition);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.user-task-card:hover {
+    transform: translateY(-3px) scale(1.01);
+    box-shadow: var(--glow-accent), var(--shadow-elevation);
+    background: linear-gradient(145deg, #252525, #1a1a1a);
 }
 
 .user-task-card:hover {
@@ -806,13 +861,28 @@ body {
 }
 
 .modal-content {
-    background: var(--bg-secondary);
-    border-radius: var(--radius);
+    background: linear-gradient(135deg, #1a1a1a, #141414);
+    border-radius: 24px;
     width: 100%;
     max-width: 600px;
     max-height: 90vh;
     overflow-y: auto;
-    border: 1px solid var(--border-color);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+    position: relative;
+    animation: modalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.96);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 .modal-sm {
@@ -1133,7 +1203,7 @@ body {
 .bi-dashboard-section {
     padding: 30px;
     min-height: calc(100vh - 80px);
-    background: var(--bg-primary);
+    background: radial-gradient(circle at top center, #1a1a1a 0%, #0d0d0d 100%);
 }
 
 .bi-header {
@@ -1192,16 +1262,17 @@ body {
 }
 
 .bi-kpi-card {
-    background: var(--bg-secondary);
-    border-radius: var(--radius);
+    background: var(--grad-card);
+    border-radius: 20px;
     padding: 25px;
     display: flex;
     align-items: center;
     gap: 20px;
-    border: 1px solid var(--border-color);
+    border: 1px solid rgba(255, 255, 255, 0.05);
     transition: var(--transition);
     position: relative;
     overflow: hidden;
+    box-shadow: var(--shadow-sm);
 }
 
 .bi-kpi-card::before {
@@ -1214,22 +1285,13 @@ body {
 }
 
 .bi-kpi-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-elevation), var(--glow-accent);
+    border-color: rgba(230, 126, 34, 0.3);
 }
 
-.kpi-blue::before {
-    background: var(--accent);
-}
-
-.kpi-green::before {
-    background: var(--accent);
-}
-
-.kpi-orange::before {
-    background: var(--accent);
-}
-
+.kpi-blue::before,
+.kpi-green::before,
 .kpi-red::before {
     background: var(--accent);
 }
@@ -1274,11 +1336,21 @@ body {
     margin-bottom: 30px;
 }
 
-.bi-chart-card {
-    background: var(--bg-secondary);
-    border-radius: var(--radius);
+.bi-chart-card,
+.bi-table-card {
+    background: var(--grad-surface);
+    border-radius: 20px;
     padding: 25px;
-    border: 1px solid var(--border-color);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+}
+
+.bi-chart-card:hover,
+.bi-table-card:hover {
+    box-shadow: var(--shadow-elevation);
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.1);
 }
 
 .bi-chart-card h3 {
@@ -1317,9 +1389,15 @@ body {
 
 .chart-bar {
     width: 50px;
-    border-radius: 6px 6px 0 0;
-    transition: all 0.5s ease;
+    border-radius: 8px 8px 0 0;
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     min-height: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.chart-bar:hover {
+    filter: brightness(1.2);
+    box-shadow: 0 0 15px rgba(230, 126, 34, 0.4);
 }
 
 .chart-bar-label {
@@ -1401,12 +1479,7 @@ body {
 }
 
 /* BI Table */
-.bi-table-card {
-    background: var(--bg-secondary);
-    border-radius: var(--radius);
-    padding: 25px;
-    border: 1px solid var(--border-color);
-}
+/* Merged into bi-chart-card above */
 
 .bi-table-card h3 {
     font-size: 16px;
