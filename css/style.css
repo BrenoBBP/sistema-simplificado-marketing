@@ -44,6 +44,48 @@
     --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Light Mode Theme */
+:root[data-theme="light"] {
+    /* Backgrounds - Clean & Bright */
+    --bg-primary: #f5f5f7;
+    --bg-secondary: #ffffff;
+    --bg-tertiary: #eaeaec;
+    --bg-card: #ffffff;
+
+    /* Text */
+    --text-primary: #1d1d1f;
+    --text-secondary: #86868b;
+    --text-muted: #6e6e73;
+
+    /* Accent - Adjusted for Light Mode */
+    --accent: #e67e22;
+    --accent-hover: #d35400;
+    --accent-glow: rgba(230, 126, 34, 0.15);
+    /* Softer glow */
+
+    /* Border */
+    --border-color: #d2d2d7;
+
+    /* Shadows - Soft & Diffused */
+    --shadow-ambient: 0 4px 12px rgba(0, 0, 0, 0.05);
+    --shadow-elevation: 0 2px 4px rgba(0, 0, 0, 0.05), 0 8px 16px rgba(0, 0, 0, 0.05);
+    --shadow-3d: 0 1px 2px rgba(0, 0, 0, 0.05), 0 4px 8px rgba(0, 0, 0, 0.05);
+    /* Softer 3D */
+
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+    --shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 16px 32px rgba(0, 0, 0, 0.1);
+
+    /* Bevel & Highlights - Inverted/Adjusted */
+    --highlight-top: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    --highlight-bottom: inset 0 -1px 0 rgba(0, 0, 0, 0.05);
+
+    /* Gradients */
+    --grad-surface: linear-gradient(145deg, #ffffff, #f2f2f5);
+    --grad-card: linear-gradient(145deg, #ffffff, #fafafa);
+    --grad-orange: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -115,9 +157,10 @@ body {
 .btn-editar {
     background: var(--grad-orange);
     color: white;
-    box-shadow: 0 4px 10px rgba(230, 126, 34, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 12px rgba(230, 126, 34, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+    /* Softer text shadow */
 }
 
 .btn-primary:hover,
@@ -129,8 +172,9 @@ body {
 .btn-cyan:hover,
 .btn-duplicar:hover,
 .btn-editar:hover {
-    box-shadow: 0 8px 20px rgba(230, 126, 34, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
-    filter: brightness(1.1);
+    box-shadow: 0 6px 16px rgba(230, 126, 34, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    /* Softer hover glow */
+    filter: brightness(1.05);
 }
 
 .btn-danger,
@@ -382,11 +426,13 @@ body {
     max-width: 350px;
     /* Soft Warm Light Depth Effect */
     background:
-        radial-gradient(circle at 50% 0%, rgba(230, 126, 34, 0.08), transparent 70%),
-        linear-gradient(180deg, #251e1b 0%, #1a1614 100%);
+        radial-gradient(circle at 50% 0%, var(--accent-glow), transparent 70%),
+        linear-gradient(180deg, var(--bg-tertiary), var(--bg-secondary));
+    /* Adaptive dynamic background */
     border-radius: 20px;
     padding: 24px;
-    border: 1px solid rgba(230, 126, 34, 0.1);
+    border: 1px solid var(--border-color);
+    /* Adaptive border */
     /* More defined border */
     box-shadow: var(--shadow-3d);
     transition: var(--transition);
@@ -761,12 +807,12 @@ body {
 .user-kanban-column {
     min-width: 280px;
     max-width: 320px;
-    /* Soft Light Depth Effect for User Columns too */
+    /* Soft Warm Light Depth Effect */
     background:
-        radial-gradient(circle at 50% 0%, rgba(230, 126, 34, 0.08), transparent 70%),
-        linear-gradient(180deg, #251e1b 0%, #1a1614 100%);
+        radial-gradient(circle at 50% 0%, var(--accent-glow), transparent 70%),
+        linear-gradient(180deg, var(--bg-tertiary), var(--bg-secondary));
     border-radius: 20px;
-    border: 1px solid rgba(230, 126, 34, 0.1);
+    border: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
     box-shadow: var(--shadow-3d);

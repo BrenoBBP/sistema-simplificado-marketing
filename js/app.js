@@ -1,8 +1,38 @@
+```
 // Main App - Event Listeners and Initialization
 
 document.addEventListener('DOMContentLoaded', () => {
     // Check session on load
     checkSession();
+
+    // Theme Toggle Logic
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    const iconMoon = themeToggleBtn.querySelector('.icon-moon');
+    const iconSun = themeToggleBtn.querySelector('.icon-sun');
+    const html = document.documentElement;
+
+    function applyTheme(theme) {
+        if (theme === 'light') {
+            html.setAttribute('data-theme', 'light');
+            iconMoon.classList.add('hidden');
+            iconSun.classList.remove('hidden');
+        } else {
+            html.removeAttribute('data-theme');
+            iconMoon.classList.remove('hidden');
+            iconSun.classList.add('hidden');
+        }
+        localStorage.setItem('theme', theme);
+    }
+
+    // Initialize Theme
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    applyTheme(savedTheme);
+
+    themeToggleBtn.addEventListener('click', () => {
+        const currentTheme = html.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+        applyTheme(newTheme);
+    });
 
     // Setup drag and drop
     setupDragDrop();
