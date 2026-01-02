@@ -98,12 +98,12 @@ function updateStatusChart(demandas) {
 
     const total = demandas.length;
     const colors = {
-        'A_FAZER': '#0984e3',
+        'A_FAZER': '#4a4a4a',
         'FIXO': '#6c6c7c',
-        'EM_ANDAMENTO': '#00b894',
-        'PARA_APROVACAO': '#e17055',
-        'EM_REVISAO': '#6c5ce7',
-        'APROVADO': '#00cec9'
+        'EM_ANDAMENTO': '#e67e22', /* Orange Accent */
+        'PARA_APROVACAO': '#d35400',
+        'EM_REVISAO': '#a64d1f',
+        'APROVADO': '#27ae60'
     };
 
     const labels = {
@@ -177,7 +177,7 @@ function updateUsersChart(demandas) {
 
     const maxCount = Math.max(...Object.values(userCounts).map(u => u.total), 1);
 
-    const barColors = ['#0984e3', '#00b894', '#6c5ce7', '#e17055', '#fdcb6e', '#00cec9'];
+    const barColors = ['#e67e22', '#d35400', '#a64d1f', '#4a4a4a', '#6c6c7c', '#2c3e50'];
 
     const barsHtml = Object.entries(userCounts).map(([nome, counts], index) => {
         const heightPercent = (counts.total / maxCount) * 180;
