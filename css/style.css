@@ -380,13 +380,13 @@ body {
     flex: 1;
     min-width: 280px;
     max-width: 350px;
-    /* Soft Light Depth Effect */
+    /* Soft Warm Light Depth Effect */
     background:
-        radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.06), transparent 70%),
-        linear-gradient(180deg, #2a2a2a 0%, #1c1c1c 100%);
+        radial-gradient(circle at 50% 0%, rgba(230, 126, 34, 0.08), transparent 70%),
+        linear-gradient(180deg, #251e1b 0%, #1a1614 100%);
     border-radius: 20px;
     padding: 24px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(230, 126, 34, 0.1);
     /* More defined border */
     box-shadow: var(--shadow-3d);
     transition: var(--transition);
@@ -763,10 +763,10 @@ body {
     max-width: 320px;
     /* Soft Light Depth Effect for User Columns too */
     background:
-        radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.06), transparent 70%),
-        linear-gradient(180deg, #2a2a2a 0%, #1c1c1c 100%);
+        radial-gradient(circle at 50% 0%, rgba(230, 126, 34, 0.08), transparent 70%),
+        linear-gradient(180deg, #251e1b 0%, #1a1614 100%);
     border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(230, 126, 34, 0.1);
     display: flex;
     flex-direction: column;
     box-shadow: var(--shadow-3d);
