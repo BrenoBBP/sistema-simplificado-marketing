@@ -1,4 +1,3 @@
-```
 // Main App - Event Listeners and Initialization
 
 document.addEventListener('DOMContentLoaded', () => {
