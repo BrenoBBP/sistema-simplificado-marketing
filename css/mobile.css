@@ -1,149 +1,216 @@
 /* ======================================
-   Mobile Optimization
+   Mobile Polishing (Sidebar & Fixed Viewport)
 ====================================== */
 
-/* Hamburger Menu Toggle (Hidden by default) */
-.menu-toggle {
-    display: none;
-    flex-direction: column;
-    justify-content: space-between;
-    width: 30px;
-    height: 21px;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    z-index: 1001;
-    padding: 0;
-}
-
-.menu-toggle span {
-    display: block;
-    width: 100%;
-    height: 3px;
-    background: var(--accent);
-    border-radius: 3px;
-    transition: all 0.3s ease;
-}
-
-/* Mobile Header Styles */
+/* 1. Fixed Viewport (App-like feel) */
 @media (max-width: 900px) {
-    .app-header {
-        padding: 15px 20px;
-        flex-wrap: wrap;
-        gap: 10px;
-        position: relative;
-    }
 
-    .logo {
-        font-size: 20px;
-    }
-
-    .header-right {
-        margin-left: auto;
-    }
-
-    /* Show Hamburger */
-    .menu-toggle {
-        display: flex;
-        order: -1;
-        /* Place before logo on left, or adjust as needed */
-        margin-right: 15px;
-    }
-
-    /* Collapsible Nav Links */
-    .nav-links {
-        display: none;
+    html,
+    body {
+        overflow: hidden;
+        /* Lock scroll */
+        height: 100%;
         width: 100%;
+        position: fixed;
+    }
+
+    /* Fixed Header */
+    .app-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1100;
+        height: 60px;
+        padding: 0 15px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: var(--bg-secondary);
+        border-bottom: 1px solid var(--border-color);
+        box-shadow: var(--shadow-sm);
+    }
+
+    /* Scrollable Content Container */
+    .kanban-container,
+    .user-kanban-container {
+        margin-top: 60px;
+        /* Header height */
+        height: calc(100dvh - 60px);
+        /* Fill remaining space */
+        overflow-y: hidden;
+        /* Column container doesn't scroll Y */
+        overflow-x: auto;
+        /* Horizontal scroll allowed */
+        scroll-snap-type: x mandatory;
+        /* Snap enabled */
+        padding: 20px;
+        gap: 15px;
+        align-items: flex-start;
+        /* Columns start at top */
+    }
+
+    /* Scrollable Columns internal content */
+    .kanban-cards,
+    .user-kanban-column {
+        max-height: calc(100dvh - 140px);
+        /* Limit internal height */
+        overflow-y: auto;
+        /* Allow scrolling INSIDE column */
+        padding-bottom: 20px;
+    }
+
+    .kanban-column,
+    .user-kanban-column {
+        height: 100%;
+        /* Fill container height */
+        min-width: 85vw;
+        max-width: 85vw;
+        scroll-snap-align: center;
+        display: flex;
         flex-direction: column;
-        gap: 10px;
-        padding-top: 20px;
-        border-top: 1px solid var(--border-color);
-        margin-top: 10px;
-        animation: slideDown 0.3s ease forwards;
+    }
+}
+
+/* 2. Sidebar (Off-canvas Menu) */
+@media (max-width: 900px) {
+
+    /* Overlay */
+    .sidebar-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1999;
+        display: none;
+        /* Hidden by default */
+        backdrop-filter: blur(2px);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .sidebar-overlay.active {
+        display: block;
+        opacity: 1;
+    }
+
+    /* Sidebar Drawer */
+    .nav-links {
+        display: flex !important;
+        /* Force flex */
+        flex-direction: column;
+        position: fixed;
+        top: 0;
+        left: -280px;
+        /* Hidden off-screen */
+        width: 260px;
+        height: 100%;
+        background: var(--bg-card);
+        z-index: 2000;
+        padding: 80px 20px 20px 20px;
+        box-shadow: 4px 0 16px rgba(0, 0, 0, 0.3);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border-right: 1px solid var(--border-color);
+        margin: 0;
+        border-top: none;
+        animation: none;
+        /* remove old animation */
     }
 
     .nav-links.active {
-        display: flex;
+        transform: translateX(280px);
+        /* Slide in */
     }
 
+    /* Sidebar Items */
     .nav-tab,
     .btn {
         width: 100%;
-        justify-content: center;
-        text-align: center;
+        text-align: left;
+        justify-content: flex-start;
+        padding: 16px;
+        font-size: 16px;
+        border-bottom: 1px solid var(--border-color);
+        border-radius: 0;
+        background: transparent !important;
+        box-shadow: none !important;
+        color: var(--text-primary);
     }
 
-    .nav-tab {
-        padding: 12px;
+    .nav-tab.active {
+        color: var(--accent);
+        font-weight: 700;
+        background: rgba(230, 126, 34, 0.1) !important;
+        border-left: 4px solid var(--accent);
+    }
+}
+
+/* 3. Header Reorganization */
+@media (max-width: 900px) {
+
+    /* Hamburger Button (Left) */
+    .menu-toggle {
+        display: flex;
+        order: 1;
+        margin-right: 15px;
+        position: relative;
+        z-index: 2001;
+        /* Above sidebar */
     }
 
-    /* Header Right adjustments */
+    /* Logo (Center-Left) */
+    .header-left {
+        order: 2;
+        flex: 1;
+    }
+
+    .logo {
+        font-size: 18px;
+        /* Smaller logo */
+    }
+
+    /* Right Actions (Theme + Logout) */
+    .header-right {
+        order: 3;
+        display: flex;
+        gap: 12px;
+        margin: 0;
+    }
+
     #user-info {
         display: none;
-        /* Hide user info to save space on mobile */
-    }
-}
-
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
     }
 
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Kanban Mobile - 1.5 Columns View */
-@media (max-width: 768px) {
-
-    .kanban-container,
-    .user-kanban-container {
-        padding: 20px;
-        gap: 15px;
-        /* Enable Scroll Snap */
-        scroll-snap-type: x mandatory;
-        padding-right: 25vw;
-        /* Ensure space to see next column hint */
+    /* Theme Toggle - Prominent */
+    #theme-toggle {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: var(--bg-tertiary) !important;
+        border: 1px solid var(--border-color);
+        position: static;
+        padding: 0;
+        margin: 0;
     }
 
-    .kanban-column,
-    .user-kanban-column {
-        min-width: 85vw;
-        /* 85% width to show part of next column */
-        max-width: 85vw;
-        scroll-snap-align: center;
-        /* Snap to center or start */
-        flex: 0 0 auto;
-        /* Prevent flexing */
+    #theme-toggle span {
+        font-size: 20px;
     }
 
-    /* Adjust header in Kanban for mobile */
-    .kanban-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-    }
-
-    .column-counter {
-        align-self: flex-end;
-    }
-}
-
-/* Smaller Mobile Adjustments */
-@media (max-width: 480px) {
-
-    .kanban-column,
-    .user-kanban-column {
-        min-width: 80vw;
-        /* Slightly smaller on very small screens */
-    }
-
-    .modal-content {
-        width: 95%;
-        margin: 10px;
-        max-height: 90vh;
+    /* Logout Button */
+    #logout-btn {
+        width: auto !important;
+        padding: 8px 16px !important;
+        font-size: 12px !important;
+        border-radius: 20px !important;
+        background: var(--bg-tertiary) !important;
+        color: var(--text-primary) !important;
+        text-transform: uppercase;
+        border: 1px solid var(--border-color);
     }
 }

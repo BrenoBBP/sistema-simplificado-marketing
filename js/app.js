@@ -33,25 +33,50 @@ document.addEventListener('DOMContentLoaded', () => {
         applyTheme(newTheme);
     });
 
-    // Mobile Menu Toggle
+    // Mobile Sidebar Logic (Off-canvas)
     const mobileMenuBtn = document.getElementById('mobile-menu-toggle');
     const navLinks = document.getElementById('nav-links');
+    const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+    function toggleSidebar() {
+        const isActive = navLinks.classList.contains('active');
+
+        if (isActive) {
+            navLinks.classList.remove('active');
+            sidebarOverlay.classList.remove('active');
+            // Reset Hamburger Icon
+            const spans = mobileMenuBtn.querySelectorAll('span');
+            spans[0].style.transform = 'none';
+            spans[1].style.opacity = '1';
+            spans[2].style.transform = 'none';
+        } else {
+            navLinks.classList.add('active');
+            sidebarOverlay.classList.add('active');
+            // Animate Hamburger Icon
+            const spans = mobileMenuBtn.querySelectorAll('span');
+            spans[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
+            spans[1].style.opacity = '0';
+            spans[2].style.transform = 'rotate(-45deg) translate(7px, -6px)';
+        }
+    }
 
     if (mobileMenuBtn) {
-        mobileMenuBtn.addEventListener('click', () => {
-            navLinks.classList.toggle('active');
+        mobileMenuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleSidebar();
+        });
 
-            // Hamburger Animation (Simple)
-            const spans = mobileMenuBtn.querySelectorAll('span');
-            if (navLinks.classList.contains('active')) {
-                spans[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
-                spans[1].style.opacity = '0';
-                spans[2].style.transform = 'rotate(-45deg) translate(7px, -6px)';
-            } else {
-                spans[0].style.transform = 'none';
-                spans[1].style.opacity = '1';
-                spans[2].style.transform = 'none';
-            }
+        // Close on Overlay Click
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', toggleSidebar);
+        }
+
+        // Close on Link Click
+        const links = navLinks.querySelectorAll('button');
+        links.forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 900) toggleSidebar();
+            });
         });
     }
 
