@@ -384,21 +384,25 @@
 
 /* Colunas do Carrossel */
 .kanban-column {
-    display: block !important;
+    display: flex !important;
+    flex-direction: column;
     flex: 0 0 calc(100vw - 30px);
     width: calc(100vw - 30px);
     min-width: calc(100vw - 30px);
     max-width: calc(100vw - 30px);
     padding: 15px;
     border-radius: 16px;
-    min-height: calc(100vh - 280px);
+    height: calc(100vh - 200px);
+    max-height: calc(100vh - 200px);
     scroll-snap-align: start;
     scroll-snap-stop: always;
+    overflow: hidden;
 }
 
 .column-header {
     margin-bottom: 15px;
     padding-bottom: 12px;
+    flex-shrink: 0;
 }
 
 .column-title {
@@ -411,10 +415,13 @@
 }
 
 .column-cards {
+    display: flex;
+    flex-direction: column;
     gap: 12px;
-    min-height: 200px;
-    max-height: calc(100vh - 350px);
+    flex: 1;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-right: 5px;
 }
 
 /* ======================================
