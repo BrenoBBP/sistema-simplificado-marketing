@@ -4,6 +4,91 @@ document.addEventListener('DOMContentLoaded', () => {
     // Check session on load
     checkSession();
 
+    // Theme Toggle Logic
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    const iconMoon = themeToggleBtn.querySelector('.icon-moon');
+    const iconSun = themeToggleBtn.querySelector('.icon-sun');
+    const html = document.documentElement;
+
+    function applyTheme(theme) {
+        if (theme === 'light') {
+            html.setAttribute('data-theme', 'light');
+            iconMoon.classList.add('hidden');
+            iconSun.classList.remove('hidden');
+        } else {
+            html.removeAttribute('data-theme');
+            iconMoon.classList.remove('hidden');
+            iconSun.classList.add('hidden');
+        }
+        localStorage.setItem('theme', theme);
+    }
+
+    // Initialize Theme
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    applyTheme(savedTheme);
+
+    themeToggleBtn.addEventListener('click', () => {
+        const currentTheme = html.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+        applyTheme(newTheme);
+    });
+
+    // Mobile Sidebar Logic (Off-canvas)
+    const mobileMenuBtn = document.getElementById('mobile-menu-toggle');
+    const navLinks = document.getElementById('nav-links');
+    const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+    function toggleSidebar() {
+        const isActive = navLinks.classList.contains('active');
+
+        if (isActive) {
+            navLinks.classList.remove('active');
+            sidebarOverlay.classList.remove('active');
+            // Reset Hamburger Icon
+            const spans = mobileMenuBtn.querySelectorAll('span');
+            spans[0].style.transform = 'none';
+            spans[1].style.opacity = '1';
+            spans[2].style.transform = 'none';
+        } else {
+            navLinks.classList.add('active');
+            sidebarOverlay.classList.add('active');
+            // Animate Hamburger Icon
+            const spans = mobileMenuBtn.querySelectorAll('span');
+            spans[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
+            spans[1].style.opacity = '0';
+            spans[2].style.transform = 'rotate(-45deg) translate(7px, -6px)';
+        }
+    }
+
+    if (mobileMenuBtn) {
+        mobileMenuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleSidebar();
+        });
+
+        // Close on Overlay Click
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', toggleSidebar);
+        }
+
+        // Close on Link Click
+        const links = navLinks.querySelectorAll('button.nav-tab'); // Only nav-tabs, not the close button
+        links.forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 900) toggleSidebar();
+            });
+        });
+
+        // Close Button Logic
+        const closeBtn = document.getElementById('menu-close-btn');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleSidebar();
+            });
+        }
+    }
+
     // Setup drag and drop
     setupDragDrop();
 
