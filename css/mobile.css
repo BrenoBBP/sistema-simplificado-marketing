@@ -373,27 +373,29 @@
 .kanban-container {
     display: flex;
     flex-direction: row;
-    padding: 15px;
+    padding: 10px;
     gap: 15px;
     overflow-x: auto;
     overflow-y: hidden;
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
     scroll-behavior: smooth;
+    height: calc(100vh - 140px);
+    max-height: calc(100vh - 140px);
 }
 
 /* Colunas do Carrossel */
 .kanban-column {
     display: flex !important;
     flex-direction: column;
-    flex: 0 0 calc(100vw - 30px);
-    width: calc(100vw - 30px);
-    min-width: calc(100vw - 30px);
-    max-width: calc(100vw - 30px);
-    padding: 15px;
+    flex: 0 0 calc(100vw - 20px);
+    width: calc(100vw - 20px);
+    min-width: calc(100vw - 20px);
+    max-width: calc(100vw - 20px);
+    padding: 12px;
     border-radius: 16px;
-    height: calc(100vh - 200px);
-    max-height: calc(100vh - 200px);
+    height: 100%;
+    max-height: 100%;
     scroll-snap-align: start;
     scroll-snap-stop: always;
     overflow: hidden;
