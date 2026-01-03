@@ -591,12 +591,42 @@
     flex-direction: column;
     max-height: 85vh;
     max-height: 85dvh;
+    overflow: hidden;
+}
+
+#modal-ver-demanda .modal-header {
+    flex-shrink: 0;
+}
+
+#modal-ver-demanda .modal-tabs {
+    flex-shrink: 0;
+}
+
+#modal-ver-demanda .modal-tab-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+}
+
+#modal-ver-demanda .modal-tab-content.active {
+    display: flex;
 }
 
 #modal-ver-demanda .modal-body {
     flex: 1;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     min-height: 0;
+}
+
+#modal-ver-demanda .modal-footer {
+    flex-shrink: 0;
+}
+
+#modal-ver-demanda .demand-actions {
+    flex-shrink: 0;
 }
 
 /* Form dentro do modal - permite scroll */
