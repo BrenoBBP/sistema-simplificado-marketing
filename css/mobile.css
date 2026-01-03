@@ -1055,3 +1055,141 @@ body.light-theme select {
     border-color: #d0d0d0;
     color: #1a1a1a;
 }
+
+/* ======================================
+   Responsive Breakpoints para dispositivos específicos
+====================================== */
+
+/* iPhone SE, iPhone 5/5S/5C (320-375px) - Telas muito pequenas */
+@media screen and (max-width: 375px) {
+    .mobile-kanban-tabs {
+        padding: 6px 8px;
+        gap: 3px;
+    }
+
+    .mobile-tab {
+        font-size: 9px;
+        padding: 6px 8px;
+    }
+
+    .kanban-container {
+        padding: 8px;
+        height: calc(100vh - 130px);
+        height: calc(100dvh - 130px);
+    }
+
+    .kanban-column {
+        flex: 0 0 calc(100vw - 16px);
+        width: calc(100vw - 16px);
+        min-width: calc(100vw - 16px);
+        max-width: calc(100vw - 16px);
+        padding: 10px;
+    }
+
+    .demand-card {
+        padding: 10px;
+    }
+
+    .demand-card-title {
+        font-size: 13px;
+    }
+
+    .info-row {
+        font-size: 10px;
+    }
+
+    .modal-content {
+        max-height: 85vh;
+        max-height: 85dvh;
+    }
+
+    .header {
+        padding: 8px 10px;
+    }
+
+    .header-title {
+        font-size: 16px;
+    }
+}
+
+/* iPhone 6/7/8, iPhone X/XS/11 Pro (375-414px) */
+@media screen and (min-width: 376px) and (max-width: 414px) {
+    .kanban-container {
+        height: calc(100vh - 135px);
+        height: calc(100dvh - 135px);
+    }
+
+    .modal-content {
+        max-height: 82vh;
+        max-height: 82dvh;
+    }
+}
+
+/* iPhone 11/12/13/14, iPhone Plus models (414-430px) */
+@media screen and (min-width: 415px) and (max-width: 430px) {
+    .kanban-container {
+        height: calc(100vh - 140px);
+        height: calc(100dvh - 140px);
+    }
+}
+
+/* iPhone 14 Pro Max, Galaxy S series (430px+) */
+@media screen and (min-width: 431px) and (max-width: 768px) {
+    .kanban-container {
+        height: calc(100vh - 145px);
+        height: calc(100dvh - 145px);
+    }
+
+    .kanban-column {
+        flex: 0 0 calc(100vw - 30px);
+        width: calc(100vw - 30px);
+        min-width: calc(100vw - 30px);
+        max-width: calc(100vw - 30px);
+    }
+}
+
+/* Altura dinâmica para dispositivos com notch/dynamic island */
+@supports (height: 100dvh) {
+    .kanban-container {
+        height: calc(100dvh - 140px);
+    }
+
+    .modal-content {
+        max-height: 80dvh;
+    }
+}
+
+/* Safe area para dispositivos com bordas arredondadas */
+@supports (padding: env(safe-area-inset-bottom)) {
+    .kanban-container {
+        padding-bottom: calc(10px + env(safe-area-inset-bottom));
+    }
+
+    .modal-content {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .form-actions {
+        padding-bottom: calc(15px + env(safe-area-inset-bottom));
+    }
+}
+
+/* Landscape mobile */
+@media screen and (max-width: 768px) and (orientation: landscape) {
+    .kanban-container {
+        height: calc(100vh - 100px);
+        height: calc(100dvh - 100px);
+    }
+
+    .kanban-column {
+        flex: 0 0 50vw;
+        width: 50vw;
+        min-width: 50vw;
+        max-width: 50vw;
+    }
+
+    .modal-content {
+        max-height: 90vh;
+        max-height: 90dvh;
+    }
+}
