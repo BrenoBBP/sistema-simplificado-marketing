@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Demandas</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/mobile.css" media="(max-width: 768px)">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -59,10 +60,49 @@
                 </div>
             </div>
         </div>
-
         <!-- Dashboard Page -->
         <div id="dashboard-page" class="page hidden">
+            <!-- Mobile Sidebar Overlay -->
+            <div class="mobile-sidebar-overlay hidden" id="mobile-sidebar-overlay"></div>
+
+            <!-- Mobile Sidebar -->
+            <nav class="mobile-sidebar hidden" id="mobile-sidebar">
+                <div class="sidebar-header">
+                    <h2>Menu</h2>
+                    <button class="sidebar-close" id="sidebar-close">&times;</button>
+                </div>
+                <div class="sidebar-menu">
+                    <button class="sidebar-item" id="sidebar-nova-demanda">
+                        <span class="sidebar-icon">➕</span>
+                        <span>Nova Demanda</span>
+                    </button>
+                    <button class="sidebar-item" id="sidebar-kanban">
+                        <span class="sidebar-icon">📋</span>
+                        <span>Kanban</span>
+                    </button>
+                    <button class="sidebar-item" id="sidebar-por-usuario">
+                        <span class="sidebar-icon">👥</span>
+                        <span>Por Usuário</span>
+                    </button>
+                    <button class="sidebar-item" id="sidebar-usuarios">
+                        <span class="sidebar-icon">👤</span>
+                        <span>Usuários</span>
+                    </button>
+                    <button class="sidebar-item" id="sidebar-relatorios">
+                        <span class="sidebar-icon">📊</span>
+                        <span>Relatórios BI</span>
+                    </button>
+                </div>
+            </nav>
+
             <header class="header">
+                <!-- Mobile: Hamburger Left -->
+                <button class="mobile-hamburger" id="mobile-hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+
                 <div class="header-left">
                     <h1 class="logo">MSA Demandas</h1>
                 </div>
@@ -74,9 +114,21 @@
                 </div>
                 <div class="header-right">
                     <span id="user-info">Olá, Usuário! (Perfil: colaborador)</span>
+                    <button class="btn-theme-toggle" id="btn-theme-toggle" title="Alternar tema claro/escuro">
+                        ☀️
+                    </button>
                     <button class="btn btn-danger" id="btn-sair">Sair</button>
                 </div>
             </header>
+
+            <!-- Mobile Kanban Tabs (só aparece no mobile) -->
+            <div class="mobile-kanban-tabs" id="mobile-kanban-tabs">
+                <button class="mobile-tab active" data-column="A_FAZER">A Fazer</button>
+                <button class="mobile-tab" data-column="EM_ANDAMENTO">Andamento</button>
+                <button class="mobile-tab" data-column="PARA_APROVACAO">Aprovação</button>
+                <button class="mobile-tab" data-column="EM_REVISAO">Revisão</button>
+                <button class="mobile-tab" data-column="APROVADO">Aprovado</button>
+            </div>
 
             <!-- Kanban Board -->
             <div class="kanban-container" id="kanban-container">
@@ -527,7 +579,7 @@
     </div>
 
     <footer class="footer">
-        <p>Desenvolvido por Nexus Tecnologia | © 2025 Direitos Reservados para o GRUPO MSA.</p>
+        <p>Desenvolvido por Easy4u.app | © 2025 Direitos Reservados para o GRUPO MSA.</p>
     </footer>
 
     <script src="js/config.js?v=8"></script>
@@ -536,6 +588,7 @@
     <script src="js/funcionarios.js?v=11"></script>
     <script src="js/userTasks.js?v=7"></script>
     <script src="js/bi-dashboard.js?v=2"></script>
+    <script src="js/mobile-tabs.js?v=1"></script>
     <script src="js/app.js?v=9"></script>
 </body>
 
