@@ -159,11 +159,11 @@ function updateUsersChart(demandas) {
     const container = document.getElementById('chart-usuarios');
     if (!container) return;
 
-    // Count demandas by user
+    // Count demandas by user (excluding requester-only roles)
     const userCounts = {};
 
     demandas.forEach(d => {
-        if (d.atribuido?.nome) {
+        if (d.atribuido?.nome && !isRequesterOnlyRole(d.atribuido?.cargo)) {
             const nome = d.atribuido.nome;
             if (!userCounts[nome]) {
                 userCounts[nome] = { total: 0, concluidas: 0 };
@@ -205,10 +205,13 @@ function updateBITable(demandas, filterUserId) {
     const tbody = document.getElementById('bi-table-tbody');
     if (!tbody) return;
 
-    // Group by user
+    // Group by user (excluding requester-only roles)
     const userStats = {};
 
     demandas.forEach(d => {
+        // Skip if user has a requester-only role
+        if (d.atribuido?.cargo && isRequesterOnlyRole(d.atribuido?.cargo)) return;
+
         const userId = d.atribuido_para;
         const userName = d.atribuido?.nome || 'Não atribuído';
 
@@ -273,7 +276,9 @@ function populateBIUserFilter() {
 
     // Only populate if empty (just the default option)
     if (select.options.length <= 1) {
-        allUsers.forEach(user => {
+        // Filter out requester-only users (SOLICITANTE)
+        const filteredUsers = allUsers.filter(user => !isRequesterOnlyRole(user.cargo));
+        filteredUsers.forEach(user => {
             const option = document.createElement('option');
             option.value = user.id;
             option.textContent = user.nome;

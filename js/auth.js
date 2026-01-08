@@ -153,6 +153,11 @@ function updateUserInfo() {
     if (typeof updateUserTasksButtonVisibility === 'function') {
         updateUserTasksButtonVisibility();
     }
+
+    // Show/hide cronograma button (ADM/DIRETOR/GERENTE only)
+    if (typeof updateCronogramaButtonVisibility === 'function') {
+        updateCronogramaButtonVisibility();
+    }
 }
 
 // Check session on load
