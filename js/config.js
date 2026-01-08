@@ -19,8 +19,12 @@ const CARGOS = {
     COORDENADOR: { level: 2, label: 'Coordenador' },
     COLABORADOR: { level: 1, label: 'Colaborador' },
     DESIGN: { level: 1, label: 'Design' },
-    AUDIOVISUAL: { level: 1, label: 'Audio Visual' }
+    AUDIOVISUAL: { level: 1, label: 'Audio Visual' },
+    SOLICITANTE: { level: 0, label: 'Solicitante', requesterOnly: true }
 };
+
+// Cargos that are "requester only" - should not appear in user reports/filters
+const REQUESTER_ONLY_CARGOS = ['SOLICITANTE'];
 
 // Status Labels
 const STATUS_LABELS = {
@@ -39,6 +43,11 @@ function canManageEmployees(cargo) {
 
 function canManageDemands(cargo) {
     return ['ADM', 'DIRETOR', 'GERENTE'].includes(cargo);
+}
+
+// Check if cargo is requester-only (should be hidden from reports)
+function isRequesterOnlyRole(cargo) {
+    return REQUESTER_ONLY_CARGOS.includes(cargo);
 }
 
 function formatDate(dateString) {
@@ -81,9 +90,11 @@ function clearError(elementId) {
 // Expose to global scope for access from other scripts
 window.supabase = supabaseClient;
 window.CARGOS = CARGOS;
+window.REQUESTER_ONLY_CARGOS = REQUESTER_ONLY_CARGOS;
 window.STATUS_LABELS = STATUS_LABELS;
 window.canManageEmployees = canManageEmployees;
 window.canManageDemands = canManageDemands;
+window.isRequesterOnlyRole = isRequesterOnlyRole;
 window.formatDate = formatDate;
 window.getInitials = getInitials;
 window.showError = showError;
