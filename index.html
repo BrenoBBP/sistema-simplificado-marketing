@@ -108,15 +108,14 @@
                 </div>
                 <div class="header-center">
                     <button class="btn btn-success" id="btn-nova-demanda">+ Nova Demanda</button>
+                    <button class="btn btn-teal" id="btn-meu-painel">Meu Painel</button>
                     <button class="btn btn-orange hidden" id="btn-por-usuario">Por Usuário</button>
+                    <button class="btn btn-purple hidden" id="btn-cronograma">Cronograma</button>
                     <button class="btn btn-cyan hidden" id="btn-usuarios">Usuários</button>
                     <button class="btn btn-info hidden" id="btn-relatorios">Relatórios BI</button>
                 </div>
                 <div class="header-right">
                     <span id="user-info">Olá, Usuário! (Perfil: colaborador)</span>
-                    <button class="btn-theme-toggle" id="btn-theme-toggle" title="Alternar tema claro/escuro">
-                        ☀️
-                    </button>
                     <button class="btn btn-danger" id="btn-sair">Sair</button>
                 </div>
             </header>
@@ -127,7 +126,30 @@
                 <button class="mobile-tab" data-column="EM_ANDAMENTO">Andamento</button>
                 <button class="mobile-tab" data-column="PARA_APROVACAO">Aprovação</button>
                 <button class="mobile-tab" data-column="EM_REVISAO">Revisão</button>
-                <button class="mobile-tab" data-column="APROVADO">Aprovado</button>
+                <button class="mobile-tab" data-column="APROVADO">Concluído</button>
+            </div>
+
+            <!-- Kanban Date Filter -->
+            <div class="kanban-filters" id="kanban-filters">
+                <div class="kanban-filter-date">
+                    <span class="filter-label">Filtrar por data:</span>
+                    <div class="filter-quick-btns">
+                        <button class="btn btn-sm filter-quick-btn active" id="kanban-filter-todos">Todos</button>
+                        <button class="btn btn-sm filter-quick-btn" id="kanban-filter-hoje">Hoje</button>
+                        <button class="btn btn-sm filter-quick-btn" id="kanban-filter-ontem">Ontem</button>
+                        <button class="btn btn-sm filter-quick-btn" id="kanban-filter-periodo">Período</button>
+                    </div>
+                    <div class="filter-period-inputs hidden" id="kanban-period-inputs">
+                        <div class="filter-group">
+                            <label for="kanban-filter-date-start">De:</label>
+                            <input type="date" id="kanban-filter-date-start" class="filter-input">
+                        </div>
+                        <div class="filter-group">
+                            <label for="kanban-filter-date-end">Até:</label>
+                            <input type="date" id="kanban-filter-date-end" class="filter-input">
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Kanban Board -->
@@ -176,7 +198,7 @@
                 </div>
                 <div class="kanban-column" data-status="APROVADO">
                     <div class="column-header">
-                        <span class="column-title">Aprovado</span>
+                        <span class="column-title">Concluído</span>
                         <span class="column-count">0</span>
                     </div>
                     <div class="column-cards" id="cards-APROVADO">
@@ -188,11 +210,164 @@
             <!-- Tarefas por Usuário Section (Directors/Managers only) -->
             <div class="tarefas-usuario-section hidden" id="tarefas-usuario-section">
                 <div class="section-header">
-                    <h2>Tarefas por Usuário</h2>
-                    <span class="section-subtitle">Visualização em tempo real das demandas em produção</span>
+                    <div class="section-header-left">
+                        <h2>Tarefas por Usuário</h2>
+                        <span class="section-subtitle">Visualização em tempo real das demandas em produção</span>
+                    </div>
+                    <div class="section-header-filters">
+                        <div class="filter-date-section">
+                            <div class="filter-quick-btns">
+                                <button class="btn btn-sm filter-quick-btn active" id="filter-btn-hoje">Hoje</button>
+                                <button class="btn btn-sm filter-quick-btn" id="filter-btn-ontem">Ontem</button>
+                                <button class="btn btn-sm filter-quick-btn" id="filter-btn-periodo">Período</button>
+                            </div>
+                            <div class="filter-period-inputs hidden" id="filter-period-inputs">
+                                <div class="filter-group">
+                                    <label for="user-tasks-filter-date-start">De:</label>
+                                    <input type="date" id="user-tasks-filter-date-start" class="filter-input">
+                                </div>
+                                <div class="filter-group">
+                                    <label for="user-tasks-filter-date-end">Até:</label>
+                                    <input type="date" id="user-tasks-filter-date-end" class="filter-input">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="filter-group">
+                            <label for="user-tasks-filter-person">Pessoa:</label>
+                            <select id="user-tasks-filter-person" class="filter-select">
+                                <option value="">Todas</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-secondary btn-sm" id="user-tasks-clear-filters">Limpar</button>
+                    </div>
                 </div>
                 <div class="user-kanban-container" id="user-kanban-container">
                     <!-- User columns will be dynamically inserted here -->
+                </div>
+            </div>
+
+            <!-- Cronograma Section (ADM/DIRETOR/GERENTE only) -->
+            <div class="cronograma-section hidden" id="cronograma-section">
+                <div class="cronograma-header">
+                    <div class="cronograma-header-left">
+                        <h2>📅 Cronograma de Entregas</h2>
+                        <span class="section-subtitle">Demandas concluídas organizadas por dia</span>
+                    </div>
+                    <div class="cronograma-filters">
+                        <div class="filter-group">
+                            <label for="cronograma-filter-user">Usuário:</label>
+                            <select id="cronograma-filter-user" class="filter-select">
+                                <!-- Populated dynamically -->
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="cronograma-filter-month">Mês:</label>
+                            <select id="cronograma-filter-month" class="filter-select">
+                                <option value="1">Janeiro</option>
+                                <option value="2">Fevereiro</option>
+                                <option value="3">Março</option>
+                                <option value="4">Abril</option>
+                                <option value="5">Maio</option>
+                                <option value="6">Junho</option>
+                                <option value="7">Julho</option>
+                                <option value="8">Agosto</option>
+                                <option value="9">Setembro</option>
+                                <option value="10">Outubro</option>
+                                <option value="11">Novembro</option>
+                                <option value="12">Dezembro</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="cronograma-filter-year">Ano:</label>
+                            <select id="cronograma-filter-year" class="filter-select">
+                                <option value="2024">2024</option>
+                                <option value="2025">2025</option>
+                                <option value="2026">2026</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="cronograma-filter-status">Status:</label>
+                            <select id="cronograma-filter-status" class="filter-select">
+                                <option value="APROVADO" selected>Concluído</option>
+                                <option value="EM_ANDAMENTO">Em Andamento</option>
+                                <option value="TODOS">Todos</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary btn-sm" id="cronograma-filter-btn">Filtrar</button>
+                        <button class="btn btn-info btn-sm" id="cronograma-pdf-btn">📄 Baixar PDF</button>
+                    </div>
+                </div>
+                <div class="cronograma-kanban" id="cronograma-kanban">
+                    <!-- Day columns will be dynamically inserted here -->
+                    <p class="empty-message">Selecione os filtros e clique em Filtrar para ver o cronograma.</p>
+                </div>
+            </div>
+
+            <!-- User Dashboard Section (visible to all users) -->
+            <div class="user-dashboard-section hidden" id="user-dashboard-section">
+                <div class="user-dashboard-header">
+                    <div class="user-dashboard-header-left">
+                        <h2>📊 Meu Painel</h2>
+                        <span class="section-subtitle">Visão geral das suas demandas</span>
+                    </div>
+                    <div class="user-dashboard-filters">
+                        <div class="filter-group">
+                            <label for="dashboard-filter-day">Dia:</label>
+                            <input type="date" id="dashboard-filter-day" class="filter-input">
+                        </div>
+                        <div class="filter-group">
+                            <label for="dashboard-filter-month">Mês:</label>
+                            <select id="dashboard-filter-month" class="filter-select">
+                                <option value="0">Todos</option>
+                                <option value="1">Janeiro</option>
+                                <option value="2">Fevereiro</option>
+                                <option value="3">Março</option>
+                                <option value="4">Abril</option>
+                                <option value="5">Maio</option>
+                                <option value="6">Junho</option>
+                                <option value="7">Julho</option>
+                                <option value="8">Agosto</option>
+                                <option value="9">Setembro</option>
+                                <option value="10">Outubro</option>
+                                <option value="11">Novembro</option>
+                                <option value="12">Dezembro</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="dashboard-filter-year">Ano:</label>
+                            <select id="dashboard-filter-year" class="filter-select">
+                                <option value="2024">2024</option>
+                                <option value="2025">2025</option>
+                                <option value="2026">2026</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary btn-sm" id="dashboard-filter-btn">Atualizar</button>
+                        <button class="btn btn-info btn-sm" id="dashboard-pdf-btn">📄 Baixar PDF</button>
+                    </div>
+                </div>
+                <div class="user-dashboard-stats" id="user-dashboard-stats">
+                    <div class="stat-card stat-total">
+                        <div class="stat-number" id="stat-total">0</div>
+                        <div class="stat-label">Total</div>
+                    </div>
+                    <div class="stat-card stat-afazer">
+                        <div class="stat-number" id="stat-afazer">0</div>
+                        <div class="stat-label">A Fazer</div>
+                    </div>
+                    <div class="stat-card stat-andamento">
+                        <div class="stat-number" id="stat-andamento">0</div>
+                        <div class="stat-label">Em Andamento</div>
+                    </div>
+                    <div class="stat-card stat-concluidas">
+                        <div class="stat-number" id="stat-concluidas">0</div>
+                        <div class="stat-label">Concluídas</div>
+                    </div>
+                </div>
+                <div class="user-dashboard-demands">
+                    <h3>Demandas Recentes</h3>
+                    <div class="demands-list" id="dashboard-demands-list">
+                        <!-- Demands will be dynamically inserted here -->
+                    </div>
                 </div>
             </div>
 
@@ -374,6 +549,7 @@
                         <option value="ADM">ADM</option>
                         <option value="DESIGN">Design</option>
                         <option value="AUDIOVISUAL">Audio Visual</option>
+                        <option value="SOLICITANTE">Solicitante</option>
                     </select>
                 </div>
                 <div class="form-actions">
@@ -420,6 +596,7 @@
                         <option value="ADM">ADM</option>
                         <option value="DESIGN">Design</option>
                         <option value="AUDIOVISUAL">Audio Visual</option>
+                        <option value="SOLICITANTE">Solicitante</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -475,7 +652,7 @@
                         <option value="EM_ANDAMENTO">Em Andamento</option>
                         <option value="PARA_APROVACAO">Para Aprovação</option>
                         <option value="EM_REVISAO">Em Revisão</option>
-                        <option value="APROVADO">Aprovado</option>
+                        <option value="APROVADO">Concluído</option>
                     </select>
                     <button class="btn btn-primary" id="btn-salvar-status">Salvar Status</button>
                 </div>
@@ -578,6 +755,52 @@
         </div>
     </div>
 
+    <!-- Modal PDF Date Selection -->
+    <div class="modal hidden" id="modal-pdf-date">
+        <div class="modal-content modal-sm">
+            <div class="modal-header">
+                <h2>📄 Gerar Relatório PDF</h2>
+                <button class="modal-close" id="close-modal-pdf">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Selecione a data para gerar o relatório de demandas:</p>
+                <div class="form-group">
+                    <label for="pdf-report-date">Data do Relatório</label>
+                    <input type="date" id="pdf-report-date" class="filter-input" required>
+                </div>
+            </div>
+            <div class="form-actions" style="padding: 0 30px 30px;">
+                <button class="btn btn-secondary" id="btn-cancelar-pdf">Cancelar</button>
+                <button class="btn btn-success" id="btn-gerar-pdf">Gerar PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal PDF Cronograma Date Range Selection -->
+    <div class="modal hidden" id="modal-pdf-cronograma">
+        <div class="modal-content modal-sm">
+            <div class="modal-header">
+                <h2>📄 Gerar Relatório PDF</h2>
+                <button class="modal-close" id="close-modal-pdf-cronograma">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Selecione o período para gerar o relatório:</p>
+                <div class="form-group">
+                    <label for="pdf-cronograma-date-start">Data Início</label>
+                    <input type="date" id="pdf-cronograma-date-start" class="filter-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="pdf-cronograma-date-end">Data Fim</label>
+                    <input type="date" id="pdf-cronograma-date-end" class="filter-input" required>
+                </div>
+            </div>
+            <div class="form-actions" style="padding: 0 30px 30px;">
+                <button class="btn btn-secondary" id="btn-cancelar-pdf-cronograma">Cancelar</button>
+                <button class="btn btn-success" id="btn-gerar-pdf-cronograma">Gerar PDF</button>
+            </div>
+        </div>
+    </div>
+
     <footer class="footer">
         <p>Desenvolvido por Easy4u | © 2025 Direitos Reservados para o GRUPO MSA.</p>
     </footer>
@@ -587,6 +810,8 @@
     <script src="js/demandas.js?v=11"></script>
     <script src="js/funcionarios.js?v=11"></script>
     <script src="js/userTasks.js?v=7"></script>
+    <script src="js/cronograma.js?v=2"></script>
+    <script src="js/user-dashboard.js?v=2"></script>
     <script src="js/bi-dashboard.js?v=2"></script>
     <script src="js/mobile-tabs.js?v=1"></script>
     <script src="js/app.js?v=9"></script>
