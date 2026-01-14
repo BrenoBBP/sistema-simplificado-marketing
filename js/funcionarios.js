@@ -33,17 +33,41 @@ function renderFuncionariosTable(funcionarios) {
             <td>${escapeHtml(func.email)}</td>
             <td><span class="cargo-badge cargo-${func.cargo}">${CARGOS[func.cargo]?.label || func.cargo}</span></td>
             <td>
-                <button class="btn btn-primary btn-sm" onclick="openEditCargoModal('${func.id}', '${escapeHtml(func.nome)}', '${func.cargo}')">
+                <button class="btn btn-primary btn-sm btn-edit-cargo" 
+                    data-user-id="${func.id}" 
+                    data-user-nome="${escapeHtml(func.nome)}" 
+                    data-user-cargo="${func.cargo}">
                     Editar Cargo
                 </button>
                 ${!isCurrentUser ? `
-                <button class="btn btn-excluir btn-sm" onclick="confirmDeleteUser('${func.id}', '${escapeHtml(func.nome)}')">
+                <button class="btn btn-excluir btn-sm btn-delete-user" 
+                    data-user-id="${func.id}" 
+                    data-user-nome="${escapeHtml(func.nome)}">
                     Excluir
                 </button>
                 ` : ''}
             </td>
         `;
         tbody.appendChild(tr);
+    });
+
+    // Add event listeners using delegation (prevents XSS from inline onclick)
+    tbody.addEventListener('click', (e) => {
+        const editBtn = e.target.closest('.btn-edit-cargo');
+        if (editBtn) {
+            const userId = editBtn.dataset.userId;
+            const nome = editBtn.dataset.userNome;
+            const cargo = editBtn.dataset.userCargo;
+            openEditCargoModal(userId, nome, cargo);
+            return;
+        }
+
+        const deleteBtn = e.target.closest('.btn-delete-user');
+        if (deleteBtn) {
+            const userId = deleteBtn.dataset.userId;
+            const nome = deleteBtn.dataset.userNome;
+            confirmDeleteUser(userId, nome);
+        }
     });
 }
 

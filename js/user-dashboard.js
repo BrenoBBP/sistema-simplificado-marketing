@@ -5,6 +5,14 @@ let isUserDashboardActive = false;
 // Cache demandas for click handler and PDF
 let dashboardDemandasCache = [];
 
+// Escape HTML for PDF generation (separate from main escapeHtml to avoid dependency issues)
+function escapeHtmlForPdf(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
 // Toggle user dashboard view
 function toggleUserDashboard() {
     const section = document.getElementById('user-dashboard-section');
@@ -146,12 +154,6 @@ async function loadUserDashboard() {
 
         // Render recent demands list
         renderDashboardDemands(demandas.slice(0, 10));
-
-        // Add click event listener for demand items
-        const container = document.getElementById('dashboard-demands-list');
-        if (container) {
-            container.addEventListener('click', handleDashboardDemandClick);
-        }
 
     } catch (error) {
         console.error('Error loading user dashboard:', error);
@@ -423,10 +425,10 @@ async function generatePdfReport() {
 
             return `
                     <tr>
-                        <td><strong>${d.titulo}</strong></td>
-                        <td style="max-width: 150px; font-size: 10px; color: #666;">${description}</td>
+                        <td><strong>${escapeHtmlForPdf(d.titulo)}</strong></td>
+                        <td style="max-width: 150px; font-size: 10px; color: #666;">${escapeHtmlForPdf(description)}</td>
                         <td><span class="status status-${statusClass}">${statusLabel}</span></td>
-                        <td>${d.criador?.nome || 'Desconhecido'}</td>
+                        <td>${escapeHtmlForPdf(d.criador?.nome || 'Desconhecido')}</td>
                         <td>${createdDate}</td>
                         <td>${previsaoDate}</td>
                     </tr>
@@ -492,5 +494,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 loadUserDashboard();
             }
         });
+    }
+
+    // Initialize click event listener for dashboard demands (once, not on each load)
+    const demandsContainer = document.getElementById('dashboard-demands-list');
+    if (demandsContainer) {
+        demandsContainer.addEventListener('click', handleDashboardDemandClick);
     }
 });

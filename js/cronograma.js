@@ -6,6 +6,14 @@ let isCronogramaViewActive = false;
 // Day names in Portuguese
 const DIAS_SEMANA = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
 
+// Escape HTML for PDF generation
+function escapeHtmlForCronogramaPdf(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
 // Check if user can access cronograma
 function canAccessCronograma(cargo) {
     return ['DIRETOR', 'GERENTE', 'ADM'].includes(cargo);
@@ -229,9 +237,6 @@ function renderCronograma(demandas, year, month) {
             </div>
         `;
     }).join('');
-
-    // Add click event delegation for all cronograma cards
-    container.addEventListener('click', handleCronogramaCardClick);
 }
 
 // Handle click on cronograma cards
@@ -295,6 +300,12 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('close-modal-pdf-cronograma')?.addEventListener('click', closeCronogramaPdfModal);
     document.getElementById('btn-cancelar-pdf-cronograma')?.addEventListener('click', closeCronogramaPdfModal);
     document.getElementById('btn-gerar-pdf-cronograma')?.addEventListener('click', generateCronogramaPdfReport);
+
+    // Initialize click event listener for cronograma cards (once, not on each render)
+    const cronogramaContainer = document.getElementById('cronograma-kanban');
+    if (cronogramaContainer) {
+        cronogramaContainer.addEventListener('click', handleCronogramaCardClick);
+    }
 });
 
 // Open PDF date range selection modal
@@ -470,12 +481,12 @@ async function generateCronogramaPdfReport() {
         .status-em-andamento { background: #f39c12; color: white; }
         .status-aprovado { background: #27ae60; color: white; }
         .description {
-            max-width: 200px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            max-width: 350px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
             font-size: 10px;
             color: #666;
+            line-height: 1.4;
         }
         .footer {
             margin-top: 40px;
@@ -531,14 +542,14 @@ async function generateCronogramaPdfReport() {
             const statusClass = d.status.toLowerCase().replace('_', '-');
             const createdDate = new Date(d.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
             const updatedDate = new Date(d.updated_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
-            const description = d.descricao ? d.descricao.substring(0, 100) + (d.descricao.length > 100 ? '...' : '') : '-';
+            const description = d.descricao || '-';
 
             return `
                     <tr>
                         <td><strong>${escapeHtml(d.titulo)}</strong></td>
                         <td class="description">${escapeHtml(description)}</td>
                         <td><span class="status status-${statusClass}">${statusLabel}</span></td>
-                        <td>${d.criador?.nome || 'Desconhecido'}</td>
+                        <td>${escapeHtmlForCronogramaPdf(d.criador?.nome || 'Desconhecido')}</td>
                         <td>${createdDate}</td>
                         <td>${updatedDate}</td>
                     </tr>
