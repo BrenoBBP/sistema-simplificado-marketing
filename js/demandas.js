@@ -3,6 +3,108 @@
 // Global state for demand actions
 let currentDemandaForActions = null;
 
+// Kanban date filter state
+let kanbanFilterDateStart = '';
+let kanbanFilterDateEnd = '';
+let kanbanFilterMode = 'todos'; // 'todos', 'hoje', 'ontem', 'periodo'
+
+// Helper functions for dates
+function getKanbanTodayDate() {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+}
+
+function getKanbanYesterdayDate() {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    return yesterday.toISOString().split('T')[0];
+}
+
+// Set Kanban date filter mode
+function setKanbanDateFilterMode(mode) {
+    kanbanFilterMode = mode;
+
+    // Update button states
+    document.querySelectorAll('#kanban-filters .filter-quick-btn').forEach(btn => btn.classList.remove('active'));
+
+    const periodInputs = document.getElementById('kanban-period-inputs');
+
+    if (mode === 'todos') {
+        document.getElementById('kanban-filter-todos')?.classList.add('active');
+        kanbanFilterDateStart = '';
+        kanbanFilterDateEnd = '';
+        periodInputs?.classList.add('hidden');
+    } else if (mode === 'hoje') {
+        document.getElementById('kanban-filter-hoje')?.classList.add('active');
+        kanbanFilterDateStart = getKanbanTodayDate();
+        kanbanFilterDateEnd = getKanbanTodayDate();
+        periodInputs?.classList.add('hidden');
+    } else if (mode === 'ontem') {
+        document.getElementById('kanban-filter-ontem')?.classList.add('active');
+        kanbanFilterDateStart = getKanbanYesterdayDate();
+        kanbanFilterDateEnd = getKanbanYesterdayDate();
+        periodInputs?.classList.add('hidden');
+    } else if (mode === 'periodo') {
+        document.getElementById('kanban-filter-periodo')?.classList.add('active');
+        periodInputs?.classList.remove('hidden');
+        // Use the input values if set, otherwise clear
+        const startInput = document.getElementById('kanban-filter-date-start');
+        const endInput = document.getElementById('kanban-filter-date-end');
+        kanbanFilterDateStart = startInput?.value || '';
+        kanbanFilterDateEnd = endInput?.value || '';
+    }
+
+    // Reload demandas with new filter
+    loadDemandas(getCurrentFilters());
+}
+
+// Initialize Kanban filter event listeners
+function initKanbanFilters() {
+    const btnTodos = document.getElementById('kanban-filter-todos');
+    if (btnTodos) {
+        btnTodos.addEventListener('click', () => setKanbanDateFilterMode('todos'));
+    }
+
+    const btnHoje = document.getElementById('kanban-filter-hoje');
+    if (btnHoje) {
+        btnHoje.addEventListener('click', () => setKanbanDateFilterMode('hoje'));
+    }
+
+    const btnOntem = document.getElementById('kanban-filter-ontem');
+    if (btnOntem) {
+        btnOntem.addEventListener('click', () => setKanbanDateFilterMode('ontem'));
+    }
+
+    const btnPeriodo = document.getElementById('kanban-filter-periodo');
+    if (btnPeriodo) {
+        btnPeriodo.addEventListener('click', () => setKanbanDateFilterMode('periodo'));
+    }
+
+    // Period date inputs
+    const filterDateStart = document.getElementById('kanban-filter-date-start');
+    if (filterDateStart) {
+        filterDateStart.addEventListener('change', (e) => {
+            kanbanFilterDateStart = e.target.value;
+            if (kanbanFilterMode === 'periodo') {
+                loadDemandas(getCurrentFilters());
+            }
+        });
+    }
+
+    const filterDateEnd = document.getElementById('kanban-filter-date-end');
+    if (filterDateEnd) {
+        filterDateEnd.addEventListener('change', (e) => {
+            kanbanFilterDateEnd = e.target.value;
+            if (kanbanFilterMode === 'periodo') {
+                loadDemandas(getCurrentFilters());
+            }
+        });
+    }
+}
+
+// Call init when DOM is ready
+document.addEventListener('DOMContentLoaded', initKanbanFilters);
+
 // Load all demandas
 async function loadDemandas(filters = {}) {
     try {
@@ -20,20 +122,24 @@ async function loadDemandas(filters = {}) {
             query = query.eq('atribuido_para', filters.usuario);
         }
 
-        if (filters.data) {
-            const startDate = new Date(filters.data);
-            startDate.setHours(0, 0, 0, 0);
-            const endDate = new Date(filters.data);
-            endDate.setHours(23, 59, 59, 999);
-
-            query = query.gte('created_at', startDate.toISOString())
-                .lte('created_at', endDate.toISOString());
+        // Apply date range filter
+        if (filters.dataInicio && filters.dataFim) {
+            const startDate = `${filters.dataInicio}T00:00:00`;
+            const endDate = `${filters.dataFim}T23:59:59`;
+            query = query.gte('created_at', startDate).lte('created_at', endDate);
+        } else if (filters.dataInicio) {
+            const startDate = `${filters.dataInicio}T00:00:00`;
+            query = query.gte('created_at', startDate);
+        } else if (filters.dataFim) {
+            const endDate = `${filters.dataFim}T23:59:59`;
+            query = query.lte('created_at', endDate);
         }
 
-        // If not admin/manager, only show own demandas
-        // Show demands assigned to current user OR created by current user but not yet assigned
-        if (!canManageDemands(currentProfile?.cargo)) {
-            query = query.or(`atribuido_para.eq.${currentProfile.id},and(criado_por.eq.${currentProfile.id},atribuido_para.is.null)`);
+        // IMPORTANT: The Kanban is PERSONAL - show only demands assigned to the current user
+        // For viewing other users' demands, use "Por Usuário" or "Cronograma" views
+        // This applies to ALL users, including admins and managers
+        if (currentProfile?.id) {
+            query = query.eq('atribuido_para', currentProfile.id);
         }
 
         const { data, error } = await query;
@@ -51,20 +157,8 @@ async function loadDemandas(filters = {}) {
 function renderKanban() {
     const statuses = ['A_FAZER', 'FIXO', 'EM_ANDAMENTO', 'PARA_APROVACAO', 'EM_REVISAO', 'APROVADO'];
 
-    // Filter demands to only show relevant ones:
-    // 1. Demands assigned to current user
-    // 2. Demands created by current user but not yet assigned to anyone
-    const currentUserId = currentProfile?.id;
-    const visibleDemandas = allDemandas.filter(d => {
-        // If assigned to current user, show it
-        if (d.atribuido_para === currentUserId) return true;
-        // If created by current user and not assigned to anyone, show it
-        if (d.criado_por === currentUserId && !d.atribuido_para) return true;
-        // If user is admin/manager and demand has no assignment, show it
-        if (canManageDemands(currentProfile?.cargo) && !d.atribuido_para) return true;
-        // Otherwise, hide it
-        return false;
-    });
+    // All demands in allDemandas are already filtered to the current user by loadDemandas()
+    const visibleDemandas = allDemandas;
 
     statuses.forEach(status => {
         const container = document.getElementById(`cards-${status}`);
@@ -72,6 +166,7 @@ function renderKanban() {
 
         const demandasForStatus = visibleDemandas.filter(d => d.status === status);
         const count = demandasForStatus.length;
+
 
         // Update count - for A_FAZER column, count both A_FAZER and FIXO
         const column = container.closest('.kanban-column');
@@ -124,8 +219,8 @@ function createDemandCard(demanda) {
     // Check if can show start button (only in A_FAZER status)
     const showStartButton = demanda.status === 'A_FAZER' || demanda.status === 'FIXO';
 
-    // Calculate remaining time
-    const tempoRestante = calcularTempoRestante(demanda.data_previsao);
+    // Calculate remaining time (pass status to stop timer when completed)
+    const tempoRestante = calcularTempoRestante(demanda.data_previsao, demanda.status);
 
     card.innerHTML = `
         <div class="demand-card-id">${taskId}</div>
@@ -144,7 +239,7 @@ function createDemandCard(demanda) {
                 <span class="info-value">${horasEstimadas}h</span>
             </div>
         </div>
-        <div class="demand-card-timer ${tempoRestante.esgotado ? 'timer-esgotado' : ''}" data-previsao="${demanda.data_previsao || ''}">
+        <div class="demand-card-timer ${tempoRestante.esgotado ? 'timer-esgotado' : ''} ${tempoRestante.concluida ? 'timer-concluida' : ''}" data-previsao="${demanda.data_previsao || ''}" data-status="${demanda.status}">
             ${tempoRestante.texto}
         </div>
         <div class="demand-card-footer">
@@ -184,15 +279,20 @@ function createDemandCard(demanda) {
 }
 
 // Calculate remaining time
-function calcularTempoRestante(dataPrevisao) {
-    if (!dataPrevisao) return { texto: 'Sem previsão', esgotado: false };
+function calcularTempoRestante(dataPrevisao, status = null) {
+    // If demand is completed (APROVADO), show "Demanda concluída" and stop timer
+    if (status === 'APROVADO') {
+        return { texto: '✅ Demanda concluída', esgotado: false, concluida: true };
+    }
+
+    if (!dataPrevisao) return { texto: 'Sem previsão', esgotado: false, concluida: false };
 
     const agora = new Date();
     const previsao = new Date(dataPrevisao);
     const diff = previsao - agora;
 
     if (diff <= 0) {
-        return { texto: 'Tempo restante: Tempo esgotado!', esgotado: true };
+        return { texto: 'Tempo restante: Tempo esgotado!', esgotado: true, concluida: false };
     }
 
     const dias = Math.floor(diff / (1000 * 60 * 60 * 24));
@@ -204,7 +304,7 @@ function calcularTempoRestante(dataPrevisao) {
     if (dias > 0) texto += `${dias}d `;
     texto += `${String(horas).padStart(2, '0')}:${String(minutos).padStart(2, '0')}:${String(segundos).padStart(2, '0')}`;
 
-    return { texto, esgotado: false };
+    return { texto, esgotado: false, concluida: false };
 }
 
 // Timer update interval
@@ -216,10 +316,25 @@ function startTimerUpdates() {
     timerInterval = setInterval(() => {
         document.querySelectorAll('.demand-card-timer[data-previsao]').forEach(timerEl => {
             const dataPrevisao = timerEl.dataset.previsao;
+            const status = timerEl.dataset.status;
+
+            // Skip updating completed demands - they don't need timer updates
+            // Also check if the timer already shows concluded message
+            if (status === 'APROVADO') {
+                // Ensure completed demands always show the correct message
+                if (!timerEl.textContent.includes('concluída')) {
+                    timerEl.textContent = '✅ Demanda concluída';
+                    timerEl.classList.remove('timer-esgotado');
+                    timerEl.classList.add('timer-concluida');
+                }
+                return;
+            }
+
             if (dataPrevisao) {
-                const tempo = calcularTempoRestante(dataPrevisao);
+                const tempo = calcularTempoRestante(dataPrevisao, status);
                 timerEl.textContent = tempo.texto;
                 timerEl.classList.toggle('timer-esgotado', tempo.esgotado);
+                timerEl.classList.toggle('timer-concluida', tempo.concluida);
             }
         });
     }, 1000);
@@ -335,11 +450,11 @@ async function updateDemandaStatus(demandaId, newStatus) {
 // Get current filters
 function getCurrentFilters() {
     const filterUsuario = document.getElementById('filter-usuario')?.value;
-    const filterData = document.getElementById('filter-data')?.value;
 
     return {
         usuario: filterUsuario || null,
-        data: filterData || null
+        dataInicio: kanbanFilterDateStart || null,
+        dataFim: kanbanFilterDateEnd || null
     };
 }
 
@@ -376,13 +491,24 @@ async function createDemanda(data) {
             }
         }
 
+        // Convert datetime-local value to proper ISO string with timezone
+        // datetime-local returns "YYYY-MM-DDTHH:MM" without timezone info
+        // We need to treat it as local time and convert to ISO with proper offset
+        let dataPrevisaoISO = null;
+        if (data_previsao) {
+            // Create date from local datetime string
+            const localDate = new Date(data_previsao);
+            // Convert to ISO string (this preserves the local time correctly)
+            dataPrevisaoISO = localDate.toISOString();
+        }
+
         const demandaData = {
             titulo,
             descricao: descricao || null,
             criado_por: currentUser.id,
             atribuido_para: atribuido_para || null,
             status: status || 'NA_FILA',
-            data_previsao: data_previsao || null,
+            data_previsao: dataPrevisaoISO,
             horas_estimadas: horas_estimadas || 8,
             arquivo_url: arquivoUrl
         };
@@ -718,10 +844,18 @@ async function salvarEdicaoDemanda(e) {
     const demandaId = document.getElementById('editar-demanda-id').value;
 
     try {
+        // Convert datetime-local value to proper ISO string with timezone
+        const previsaoValue = document.getElementById('editar-previsao').value;
+        let dataPrevisaoISO = null;
+        if (previsaoValue) {
+            const localDate = new Date(previsaoValue);
+            dataPrevisaoISO = localDate.toISOString();
+        }
+
         const updateData = {
             titulo: document.getElementById('editar-titulo').value,
             descricao: document.getElementById('editar-descricao').value || null,
-            data_previsao: document.getElementById('editar-previsao').value || null,
+            data_previsao: dataPrevisaoISO,
             horas_estimadas: parseFloat(document.getElementById('editar-horas').value) || 8,
             updated_at: new Date().toISOString()
         };
