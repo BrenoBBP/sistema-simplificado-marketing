@@ -288,7 +288,21 @@ function calcularTempoRestante(dataPrevisao, status = null) {
     if (!dataPrevisao) return { texto: 'Sem previsão', esgotado: false, concluida: false };
 
     const agora = new Date();
-    const previsao = new Date(dataPrevisao);
+
+    // Ensure the date string is interpreted as UTC
+    // Supabase may return dates with +00:00 suffix or without timezone indicator
+    // We need to ensure consistent UTC interpretation
+    let dateStr = String(dataPrevisao);
+    // If the date has +00:00, replace with Z for consistent parsing
+    if (dateStr.includes('+00:00')) {
+        dateStr = dateStr.replace('+00:00', 'Z');
+    }
+    // If the date doesn't have any timezone indicator (no Z or +/-), add Z to treat as UTC
+    if (!dateStr.includes('Z') && !dateStr.includes('+') && !dateStr.includes('-', 10)) {
+        dateStr = dateStr + 'Z';
+    }
+
+    const previsao = new Date(dateStr);
     const diff = previsao - agora;
 
     if (diff <= 0) {

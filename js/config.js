@@ -52,7 +52,19 @@ function isRequesterOnlyRole(cargo) {
 
 function formatDate(dateString) {
     if (!dateString) return '-';
-    const date = new Date(dateString);
+
+    // Ensure the date string is interpreted as UTC
+    // Supabase may return dates with +00:00 suffix or without timezone indicator
+    let dateStr = String(dateString);
+    if (dateStr.includes('+00:00')) {
+        dateStr = dateStr.replace('+00:00', 'Z');
+    }
+    // If the date doesn't have any timezone indicator, add Z to treat as UTC
+    if (!dateStr.includes('Z') && !dateStr.includes('+') && !dateStr.includes('-', 10)) {
+        dateStr = dateStr + 'Z';
+    }
+
+    const date = new Date(dateStr);
     return date.toLocaleDateString('pt-BR', {
         day: '2-digit',
         month: '2-digit',
