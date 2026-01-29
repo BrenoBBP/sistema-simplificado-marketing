@@ -475,7 +475,7 @@ function getCurrentFilters() {
 // Create new demanda
 async function createDemanda(data) {
     try {
-        const { titulo, descricao, atribuido_para, status, data_previsao, horas_estimadas, arquivo } = data;
+        const { titulo, descricao, atribuido_para, status, data_previsao, horas_estimadas, arquivo, checklist } = data;
 
         let arquivoUrl = null;
 
@@ -524,7 +524,8 @@ async function createDemanda(data) {
             status: status || 'NA_FILA',
             data_previsao: dataPrevisaoISO,
             horas_estimadas: horas_estimadas || 8,
-            arquivo_url: arquivoUrl
+            arquivo_url: arquivoUrl,
+            checklist: checklist || []
         };
 
         const { data: newDemanda, error } = await supabase
@@ -576,6 +577,9 @@ function openDemandaModal(demanda) {
 
     // Display attachment in Anexos tab
     renderAnexos(demanda.arquivo_url);
+
+    // Load notes and checklist data
+    loadNotasData(demanda);
 
     modal.classList.remove('hidden');
 }
@@ -897,4 +901,344 @@ async function salvarEdicaoDemanda(e) {
         alert('Erro ao atualizar demanda: ' + error.message);
     }
 }
+
+// ======================================
+// Notas e Checklist Functions
+// ======================================
+
+// State for current checklist
+let currentChecklist = [];
+
+// Load notes data when modal opens
+function loadNotasData(demanda) {
+    // Load observações
+    const campoObservacoes = document.getElementById('campo-observacoes');
+    if (campoObservacoes) {
+        campoObservacoes.value = demanda.observacoes || '';
+    }
+
+    // Load checklist
+    currentChecklist = [];
+    try {
+        if (demanda.checklist) {
+            if (typeof demanda.checklist === 'string') {
+                currentChecklist = JSON.parse(demanda.checklist);
+            } else {
+                currentChecklist = demanda.checklist;
+            }
+        }
+    } catch (e) {
+        console.error('Error parsing checklist:', e);
+        currentChecklist = [];
+    }
+
+    renderChecklist();
+}
+
+// Save observações
+async function salvarObservacoes() {
+    if (!currentDemandaForActions) return;
+
+    const observacoes = document.getElementById('campo-observacoes').value;
+
+    try {
+        const { error } = await supabase
+            .from('demandas')
+            .update({
+                observacoes: observacoes,
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', currentDemandaForActions.id);
+
+        if (error) throw error;
+
+        // Update local state
+        currentDemandaForActions.observacoes = observacoes;
+
+        // Show success feedback
+        const btn = document.getElementById('btn-salvar-observacoes');
+        const originalText = btn.textContent;
+        btn.textContent = '✓ Salvo';
+        btn.classList.add('btn-success');
+        setTimeout(() => {
+            btn.textContent = originalText;
+            btn.classList.remove('btn-success');
+        }, 2000);
+    } catch (error) {
+        console.error('Error saving observacoes:', error);
+        alert('Erro ao salvar observações: ' + error.message);
+    }
+}
+
+// Add new checklist item
+async function adicionarChecklistItem() {
+    if (!currentDemandaForActions) return;
+
+    const input = document.getElementById('novo-checkbox-texto');
+    const texto = input.value.trim();
+
+    if (!texto) {
+        input.focus();
+        return;
+    }
+
+    // Create new item
+    const novoItem = {
+        id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(),
+        texto: texto,
+        concluido: false,
+        criado_em: new Date().toISOString()
+    };
+
+    currentChecklist.push(novoItem);
+
+    // Save to database
+    try {
+        const { error } = await supabase
+            .from('demandas')
+            .update({
+                checklist: currentChecklist,
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', currentDemandaForActions.id);
+
+        if (error) throw error;
+
+        // Update local state
+        currentDemandaForActions.checklist = currentChecklist;
+
+        // Clear input and re-render
+        input.value = '';
+        renderChecklist();
+    } catch (error) {
+        console.error('Error adding checklist item:', error);
+        currentChecklist.pop(); // Rollback
+        alert('Erro ao adicionar item: ' + error.message);
+    }
+}
+
+// Toggle checklist item
+async function toggleChecklistItem(itemId) {
+    if (!currentDemandaForActions) return;
+
+    const item = currentChecklist.find(i => i.id === itemId);
+    if (!item) return;
+
+    // Toggle state
+    item.concluido = !item.concluido;
+
+    // Save to database
+    try {
+        const { error } = await supabase
+            .from('demandas')
+            .update({
+                checklist: currentChecklist,
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', currentDemandaForActions.id);
+
+        if (error) throw error;
+
+        // Update local state
+        currentDemandaForActions.checklist = currentChecklist;
+        renderChecklist();
+    } catch (error) {
+        console.error('Error toggling checklist item:', error);
+        item.concluido = !item.concluido; // Rollback
+        alert('Erro ao atualizar item: ' + error.message);
+    }
+}
+
+// Delete checklist item
+async function deleteChecklistItem(itemId) {
+    if (!currentDemandaForActions) return;
+
+    const index = currentChecklist.findIndex(i => i.id === itemId);
+    if (index === -1) return;
+
+    const removedItem = currentChecklist.splice(index, 1)[0];
+
+    // Save to database
+    try {
+        const { error } = await supabase
+            .from('demandas')
+            .update({
+                checklist: currentChecklist,
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', currentDemandaForActions.id);
+
+        if (error) throw error;
+
+        // Update local state
+        currentDemandaForActions.checklist = currentChecklist;
+        renderChecklist();
+    } catch (error) {
+        console.error('Error deleting checklist item:', error);
+        currentChecklist.splice(index, 0, removedItem); // Rollback
+        alert('Erro ao remover item: ' + error.message);
+    }
+}
+
+// Render checklist items
+function renderChecklist() {
+    const container = document.getElementById('checklist-container');
+    if (!container) return;
+
+    if (currentChecklist.length === 0) {
+        container.innerHTML = '<p class="empty-message">Nenhum item na lista.</p>';
+        updateChecklistProgress();
+        return;
+    }
+
+    container.innerHTML = currentChecklist.map(item => `
+        <div class="checklist-item ${item.concluido ? 'concluido' : ''}" data-id="${item.id}">
+            <div class="checklist-checkbox ${item.concluido ? 'checked' : ''}" onclick="toggleChecklistItem('${item.id}')"></div>
+            <span class="checklist-texto">${escapeHtml(item.texto)}</span>
+            <button class="checklist-delete" onclick="deleteChecklistItem('${item.id}')" title="Remover">×</button>
+        </div>
+    `).join('');
+
+    updateChecklistProgress();
+}
+
+// Update progress bar
+function updateChecklistProgress() {
+    const total = currentChecklist.length;
+    const concluidos = currentChecklist.filter(i => i.concluido).length;
+    const porcentagem = total > 0 ? (concluidos / total) * 100 : 0;
+
+    const progressFill = document.getElementById('checklist-progress-fill');
+    const progressText = document.getElementById('checklist-progress-text');
+
+    if (progressFill) {
+        progressFill.style.width = `${porcentagem}%`;
+    }
+
+    if (progressText) {
+        progressText.textContent = `${concluidos}/${total} concluídos`;
+    }
+}
+
+// Initialize event listeners for notes tab
+function initNotasEventListeners() {
+    // Save observações button
+    const btnSalvarObs = document.getElementById('btn-salvar-observacoes');
+    if (btnSalvarObs) {
+        btnSalvarObs.addEventListener('click', salvarObservacoes);
+    }
+
+    // Add checklist item button
+    const btnAddCheckbox = document.getElementById('btn-adicionar-checkbox');
+    if (btnAddCheckbox) {
+        btnAddCheckbox.addEventListener('click', adicionarChecklistItem);
+    }
+
+    // Add item on Enter key
+    const inputNovoCheckbox = document.getElementById('novo-checkbox-texto');
+    if (inputNovoCheckbox) {
+        inputNovoCheckbox.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                adicionarChecklistItem();
+            }
+        });
+    }
+}
+
+// Initialize on DOM ready
+document.addEventListener('DOMContentLoaded', initNotasEventListeners);
+
+// ======================================
+// Checklist no Formulário de Criação
+// ======================================
+
+// State for form checklist items
+let formChecklistItems = [];
+
+// Add item to form checklist
+function addFormChecklistItem() {
+    const input = document.getElementById('novo-checklist-item-form');
+    const texto = input.value.trim();
+
+    if (!texto) {
+        input.focus();
+        return;
+    }
+
+    // Create new item
+    const novoItem = {
+        id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(),
+        texto: texto,
+        concluido: false,
+        criado_em: new Date().toISOString()
+    };
+
+    formChecklistItems.push(novoItem);
+    input.value = '';
+    renderFormChecklist();
+    input.focus();
+}
+
+// Remove item from form checklist
+function removeFormChecklistItem(itemId) {
+    formChecklistItems = formChecklistItems.filter(i => i.id !== itemId);
+    renderFormChecklist();
+}
+
+// Render form checklist preview
+function renderFormChecklist() {
+    const container = document.getElementById('checklist-preview-form');
+    if (!container) return;
+
+    if (formChecklistItems.length === 0) {
+        container.innerHTML = '';
+        return;
+    }
+
+    container.innerHTML = formChecklistItems.map(item => `
+        <div class="checklist-preview-item" data-id="${item.id}">
+            <span class="item-icon">☐</span>
+            <span class="item-text">${escapeHtml(item.texto)}</span>
+            <button type="button" class="item-remove" onclick="removeFormChecklistItem('${item.id}')" title="Remover">×</button>
+        </div>
+    `).join('');
+}
+
+// Clear form checklist (called when modal is closed or form submitted)
+function clearFormChecklist() {
+    formChecklistItems = [];
+    const container = document.getElementById('checklist-preview-form');
+    if (container) container.innerHTML = '';
+    const input = document.getElementById('novo-checklist-item-form');
+    if (input) input.value = '';
+}
+
+// Get current form checklist items
+function getFormChecklistItems() {
+    return [...formChecklistItems];
+}
+
+// Initialize form checklist event listeners
+function initFormChecklistListeners() {
+    // Add button
+    const btnAdd = document.getElementById('btn-add-checklist-form');
+    if (btnAdd) {
+        btnAdd.addEventListener('click', addFormChecklistItem);
+    }
+
+    // Enter key on input
+    const input = document.getElementById('novo-checklist-item-form');
+    if (input) {
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addFormChecklistItem();
+            }
+        });
+    }
+}
+
+// Initialize on DOM ready
+document.addEventListener('DOMContentLoaded', initFormChecklistListeners);
 

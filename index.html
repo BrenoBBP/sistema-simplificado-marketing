@@ -518,6 +518,21 @@
                     <label for="arquivo">Anexar Arquivo (Opcional)</label>
                     <input type="file" id="arquivo">
                 </div>
+
+                <!-- Checklist para a demanda (opcional) -->
+                <div class="form-group checklist-form-section">
+                    <label>✅ Lista de Verificação (Opcional)</label>
+                    <p class="form-helper-text">Adicione itens que o responsável deve completar</p>
+                    <div class="checklist-add-form">
+                        <input type="text" id="novo-checklist-item-form" placeholder="Adicionar item..."
+                            maxlength="200">
+                        <button type="button" class="btn btn-sm btn-success" id="btn-add-checklist-form">+</button>
+                    </div>
+                    <div class="checklist-preview" id="checklist-preview-form">
+                        <!-- Itens adicionados aparecerão aqui -->
+                    </div>
+                </div>
+
                 <div class="form-actions">
                     <button type="button" class="btn btn-secondary" id="btn-cancelar-demanda">Cancelar</button>
                     <button type="submit" class="btn btn-success">Criar Demanda</button>
@@ -628,6 +643,7 @@
             <!-- Tabs Navigation -->
             <div class="modal-tabs">
                 <button class="modal-tab active" data-tab="detalhes">Detalhes</button>
+                <button class="modal-tab" data-tab="notas">Notas</button>
                 <button class="modal-tab" data-tab="anexos">Anexos</button>
             </div>
 
@@ -655,6 +671,42 @@
                         <option value="APROVADO">Concluído</option>
                     </select>
                     <button class="btn btn-primary" id="btn-salvar-status">Salvar Status</button>
+                </div>
+            </div>
+
+            <!-- Tab Content: Notas -->
+            <div class="modal-tab-content" id="tab-notas">
+                <div class="modal-body notas-body">
+                    <!-- Observações Section -->
+                    <div class="notas-section">
+                        <div class="notas-header">
+                            <h4>📝 Observações</h4>
+                            <button class="btn btn-sm btn-primary" id="btn-salvar-observacoes">Salvar</button>
+                        </div>
+                        <textarea id="campo-observacoes" placeholder="Escreva suas notas e observações aqui..."
+                            rows="4"></textarea>
+                    </div>
+
+                    <!-- Checklist Section -->
+                    <div class="checklist-section">
+                        <div class="checklist-header">
+                            <h4>✅ Lista de Verificação</h4>
+                            <div class="checklist-add">
+                                <input type="text" id="novo-checkbox-texto" placeholder="Adicionar item..."
+                                    maxlength="200">
+                                <button class="btn btn-sm btn-success" id="btn-adicionar-checkbox">+</button>
+                            </div>
+                        </div>
+                        <div class="checklist-items" id="checklist-container">
+                            <p class="empty-message">Nenhum item na lista.</p>
+                        </div>
+                        <div class="checklist-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="checklist-progress-fill"></div>
+                            </div>
+                            <span class="progress-text" id="checklist-progress-text">0/0 concluídos</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 

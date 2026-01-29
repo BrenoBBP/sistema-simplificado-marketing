@@ -141,10 +141,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Close modal buttons
     document.getElementById('close-modal-demanda')?.addEventListener('click', () => {
+        if (typeof clearFormChecklist === 'function') clearFormChecklist();
         document.getElementById('modal-nova-demanda').classList.add('hidden');
     });
 
     document.getElementById('btn-cancelar-demanda')?.addEventListener('click', () => {
+        if (typeof clearFormChecklist === 'function') clearFormChecklist();
         document.getElementById('modal-nova-demanda').classList.add('hidden');
     });
 
@@ -186,13 +188,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 status: document.getElementById('status-inicial').value,
                 data_previsao: document.getElementById('data-previsao').value || null,
                 horas_estimadas: parseFloat(document.getElementById('horas-estimadas').value) || 8,
-                arquivo: arquivoInput?.files[0] || null
+                arquivo: arquivoInput?.files[0] || null,
+                checklist: typeof getFormChecklistItems === 'function' ? getFormChecklistItems() : []
             };
 
             await createDemanda(data);
 
-            // Clear form and close modal
+            // Clear form, checklist and close modal
             document.getElementById('form-nova-demanda').reset();
+            if (typeof clearFormChecklist === 'function') clearFormChecklist();
             document.getElementById('modal-nova-demanda').classList.add('hidden');
 
             alert('Demanda criada com sucesso!');
